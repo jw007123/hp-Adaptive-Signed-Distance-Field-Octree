@@ -4,7 +4,7 @@ namespace SDF
 {
 	void Config::IsValid() const
 	{
-		assert(maximumSDFError > 0.0);
+		assert(targetErrorThreshold > 0.0);
 		assert(threadCount > 0);
 
 		if (nearnessWeighting.type != Config::NearnessWeighting::None)

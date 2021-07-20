@@ -115,7 +115,7 @@ namespace SDF
 		while (!finished)
 		{
 			// Check if we can finish
-			finished = totalCoeffError_ < config.maximumSDFError || nodeQueue.empty();
+			finished = totalCoeffError_ < config.targetErrorThreshold || nodeQueue.empty();
 			if (finished)
 			{
 				// Stop threads in loop so no need to duplicate outputQueue code outside loop
@@ -222,7 +222,7 @@ namespace SDF
 		UniformlyRefine(totalCoeffError);
 
 		// Main algo loop
-		if (totalCoeffError > config.maximumSDFError)
+		if (totalCoeffError > config.targetErrorThreshold)
 		{
 			RunBuildThreadPool(totalCoeffError);
 		}

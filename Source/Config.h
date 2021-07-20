@@ -24,7 +24,7 @@ namespace SDF
 			f64 strength;
 		} continuity;
 
-		f64 maximumSDFError;
+		f64 targetErrorThreshold;
 		usize threadCount;
 
 		/// Checks that the config has valid parameters
