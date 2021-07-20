@@ -1,7 +1,7 @@
 # hp-Adaptive Signed Distance Fields
 
 A multithreaded implementation of [An hp-Adaptive Discretization Algorithm for
-Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/papers/2017-TVCG-HPDistanceFields.pdf). The code generates an approximation of an abitrary SDF defined over the unit cube. A example use case is to quickly determine the signed distance of a point from a triangular mesh, which can be quite costly even when using a BVH. At the cost of small approximation error, query perfomance can be improved by orders of magnitude. An example use of the API is given below:
+Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/papers/2017-TVCG-HPDistanceFields.pdf). The code generates an approximation of an arbitrary SDF defined over the unit cube. A example use case is to quickly determine the signed distance of a point from a triangular mesh, which can be quite costly even when using a BVH. At the cost of small approximation error, query perfomance can be improved by orders of magnitude. An example use of the API is given below:
 
 ```
   // Example SDF
