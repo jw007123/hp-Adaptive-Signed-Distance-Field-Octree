@@ -12,7 +12,7 @@ Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/pap
   
   // Create config
   SDF::Config config;
-  config.maximumSDFError = 0.000001;
+  config.targetErrorThreshold = 0.000001;
   config.nearnessWeighting.type = SDF::Config::NearnessWeighting::Type::Exponential;
   config.nearnessWeighting.stength = 3.0;
   config.continuity.enforce = true;
@@ -62,10 +62,10 @@ Some octree examples are given below. For each one, we have a slice of the appro
 
 All examples were generated using a Ryzen 5800X and OpenMP enabled to speed up Eigen's ConjugateGradient solver.
 
-![ImageA](https://i.imgur.com/kCpQJvk.png)
+![ImageA](https://i.imgur.com/HPIm2IM.png)
 
-![ImageB](https://i.imgur.com/cbhtWNn.png)
+![ImageB](https://i.imgur.com/W1MgeER.png)
 
-![ImageC](https://i.imgur.com/0aHdBCW.png)
+![ImageC](https://i.imgur.com/ZW1iW9y.png)
 
 An ordered ToDo list can be found in ToDo.txt (whatever else).
