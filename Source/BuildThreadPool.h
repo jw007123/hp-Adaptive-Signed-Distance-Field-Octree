@@ -10,9 +10,6 @@
 #include "Eigen/Geometry"
 
 #include "Literals.h"
-
-#include "Utility.h"
-#include "Legendre.h"
 #include "Node.h"
 #include "Config.h"
 

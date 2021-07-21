@@ -1,4 +1,5 @@
 #include "ContinuityThreadPool.h"
+#include "Octree.h"
 
 namespace SDF
 {

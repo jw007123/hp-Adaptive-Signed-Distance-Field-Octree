@@ -15,7 +15,7 @@ namespace SDF
 				Exponential = 2
 			} type;
 
-			f64 stength;
+			f64 strength;
 		} nearnessWeighting;
 
 		struct Continuity

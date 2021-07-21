@@ -10,9 +10,6 @@
 #include "Eigen/Sparse"
 
 #include "Literals.h"
-
-#include "Utility.h"
-#include "Legendre.h"
 #include "Config.h"
 
 namespace SDF

@@ -2,14 +2,14 @@
 
 #include "Literals.h"
 
-constexpr usize BASIS_MAX_DEGREE = 9;
-constexpr usize TREE_MAX_DEPTH = 9;
-
 /*
 	Functions and Lookups
 */
 namespace SDF
 {
+	constexpr usize BASIS_MAX_DEGREE = 9;
+	constexpr usize TREE_MAX_DEPTH = 9;
+
 	/*
 		Constexpr-satisfying versions of Pow and Sqrt.
 	*/

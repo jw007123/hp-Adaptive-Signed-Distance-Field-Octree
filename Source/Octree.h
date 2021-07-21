@@ -10,7 +10,6 @@
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
 #include "Literals.h"

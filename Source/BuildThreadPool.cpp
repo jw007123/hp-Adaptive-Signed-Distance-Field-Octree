@@ -1,4 +1,5 @@
 #include "BuildThreadPool.h"
+#include "Octree.h"
 
 namespace SDF
 {

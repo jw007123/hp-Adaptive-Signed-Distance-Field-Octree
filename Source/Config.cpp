@@ -9,7 +9,7 @@ namespace SDF
 
 		if (nearnessWeighting.type != Config::NearnessWeighting::None)
 		{
-			assert(nearnessWeighting.stength > 0.0);
+			assert(nearnessWeighting.strength > 0.0);
 		}
 
 		if (continuity.enforce)

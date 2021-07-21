@@ -235,6 +235,13 @@ namespace SDF
 		{
 			PerformContinuityPostProcess(nCoeffs);
 		}
+
+		// Cleanup
+		procMap.clear();
+		while (!nodeQueue.empty())
+		{
+			nodeQueue.pop();
+		}
 	}
 
 
@@ -993,8 +1000,8 @@ namespace SDF
 		fIntegral = std::abs<f64>(fIntegral);
 
 		// Calc weighting and then clamp to [0, 1]
-		const f64 k = std::pow(1.0 - fIntegral / (V * d), config.nearnessWeighting.stength);
-		return std::clamp<f64>(k, 0.0, 1.0);
+		const f64 k = std::pow(1.0 - fIntegral / (V * d), config.nearnessWeighting.strength);
+		return std::min<f64>(1.0, std::max<f64>(k, 0.0));
 	}
 
 
@@ -1015,7 +1022,7 @@ namespace SDF
 		fIntegral = std::abs<f64>(fIntegral);
 
 		// Calc weighting
-		return std::exp(-1.0 * config.nearnessWeighting.stength * fIntegral / (V * d));
+		return std::exp(-1.0 * config.nearnessWeighting.strength * fIntegral / (V * d));
 	}
 
 
@@ -1233,7 +1240,7 @@ namespace SDF
 					continue;
 				}
 
-				f32 integral = 1.0;
+				f64 integral = 1.0;
 				integral *= LpX(BasisIndexValues[i][dim_], 1.0);
 				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
 				integral *= LpX(BasisIndexValues[j][dim_], 1.0);
@@ -1256,7 +1263,7 @@ namespace SDF
 					continue;
 				}
 
-				f32 integral = -1.0f;
+				f64 integral = -1.0;
 				integral *= LpX(BasisIndexValues[i][dim_], 1.0);
 				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
 				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
@@ -1280,7 +1287,7 @@ namespace SDF
 					continue;
 				}
 
-				f32 integral = 1.0f;
+				f64 integral = 1.0;
 				integral *= LpX(BasisIndexValues[i][dim_], -1.0);
 				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeB.depth];
 				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
