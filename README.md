@@ -23,7 +23,7 @@ All library objects and functions are namespaced within SDF. The API is intentio
   SDF::Config config;
   config.targetErrorThreshold = 0.000001;
   config.nearnessWeighting.type = SDF::Config::NearnessWeighting::Type::Exponential;
-  config.nearnessWeighting.stength = 3.0;
+  config.nearnessWeighting.strength = 3.0;
   config.continuity.enforce = true;
   config.continuity.strength = 8.0;
   config.threadCount = 12;
