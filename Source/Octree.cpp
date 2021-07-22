@@ -476,6 +476,45 @@ namespace SDF
 			}
 		}
 	}
+	
+	
+	f64 Octree::QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitGradient_)
+	{
+		// Not in volume
+		if (!nodes[0].aabb.contains(pt_.cast<f32>()))
+		{
+			return std::numeric_limits<f64>::max();
+		}
+
+		// Start at root
+		usize curNodeIdx = 0;
+		while (1)
+		{
+			const Eigen::Vector3f& aabbMin = nodes[curNodeIdx].aabb.min();
+			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
+			const f32 curNodeAABBHalf = (aabbMax.x() - aabbMin.x()) * 0.5f;
+
+			const usize xIdx = (pt_.x() > (aabbMin.x() + curNodeAABBHalf));
+			const usize yIdx = (pt_.y() > (aabbMin.y() + curNodeAABBHalf)) << 1;
+			const usize zIdx = (pt_.z() > (aabbMin.z() + curNodeAABBHalf)) << 2;
+
+			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
+			const Node& curChild = nodes[childIdx];
+			if (curChild.basis.degree != 0)
+			{
+				// Leaf
+				Node::Basis basis;
+				basis.degree = curChild.basis.degree;
+				basis.coeffs = coeffStore + curChild.basis.coeffsStart;
+				return FApproxWithGradient(basis, curChild.aabb, pt_, curChild.depth, unitGradient_);
+			}
+			else
+			{
+				// Not leaf
+				curNodeIdx = childIdx;
+			}
+		}
+	}
 
 
 	void Octree::CreateRoot()
@@ -551,6 +590,59 @@ namespace SDF
 			for (usize j = 0; j < 3; ++j)
 			{
 				Lp *= LpXLookup[BasisIndexValues[i][j]][j];
+			}
+
+			fApprox += basis_.coeffs[i] * Lp;
+		}
+
+		return fApprox;
+	}
+	
+	
+	f64 Octree::FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitGradient_)
+	{
+		// Move pt_ to unit cube
+		const Eigen::Vector3d unitPt = (pt_ - aabb_.center().cast<f64>()) * (2 << depth_);
+
+		// CD eps
+		const f64 eps = 0.01;
+
+		// Create lookup table for pt_
+		f64 LpXLookup[BASIS_MAX_DEGREE][3][3];
+		for (usize i = 0; i < 3; ++i)
+		{
+			for (usize j = 0; j <= basis_.degree; ++j)
+			{
+				LpXLookup[j][i][0] = LpX(j, unitPt(i)) * NormalisedLengths[j][depth_];
+				LpXLookup[j][i][1] = LpX(j, unitPt(i) + eps) * NormalisedLengths[j][depth_];
+				LpXLookup[j][i][2] = LpX(j, unitPt(i) - eps) * NormalisedLengths[j][depth_];
+			}
+		}
+
+		// Calculate gradient
+		for (usize k = 0; k < 3; ++k)
+		{
+			f64 fApproxP1 = 0.0;
+			f64 fApproxM1 = 0.0;
+
+			for (usize i = 0; i < LegendreCoeffientCount[basis_.degree]; ++i)
+			{
+				fApproxP1 += basis_.coeffs[i] * LpXLookup[BasisIndexValues[i][k]][k][1];
+				fApproxM1 += basis_.coeffs[i] * LpXLookup[BasisIndexValues[i][k]][k][2];
+			}
+
+			unitGradient_(k) = (fApproxP1 - fApproxM1) / (2.0 * eps);
+		}
+		unitGradient_.normalize();
+
+		// Return actual value
+		f64 fApprox = 0.0;
+		for (usize i = 0; i < LegendreCoeffientCount[basis_.degree]; ++i)
+		{
+			f64 Lp = 1.0;
+			for (usize j = 0; j < 3; ++j)
+			{
+				Lp *= LpXLookup[BasisIndexValues[i][j]][j][0];
 			}
 
 			fApprox += basis_.coeffs[i] * Lp;
