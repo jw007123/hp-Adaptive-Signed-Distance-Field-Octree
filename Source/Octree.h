@@ -10,7 +10,11 @@
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
+#define HAS_STB 0
+#if HAS_STB
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#endif
 
 #include "Literals.h"
 
@@ -50,10 +54,9 @@ namespace SDF
 		f64 Query(const Eigen::Vector3d& pt_);
 
 		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
+#if HAS_STB
 		void OutputFunctionSlice(const char* fName_, const f64 c_);
-
-		/// Writes a 2048*2048 image of the octree structure about z = c_ to fName_.bmp
-		void OutputTreeSlice(const char* fName_, const f64 c_);
+#endif
 
 	private:
 		friend class BuildThreadPool;

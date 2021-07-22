@@ -1,5 +1,3 @@
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
 #include "Config.cpp"
 #include "Node.cpp"
 #include "Octree.cpp"
@@ -56,7 +54,9 @@ int main()
 
 	SDF::Octree hpOctree;
 	hpOctree.Create(hpConfig, Figure1Func);
+#if HAS_STB
 	hpOctree.OutputFunctionSlice("SDF at Z = 0", 0.0);
+#endif
 
 	return 0;
 }
