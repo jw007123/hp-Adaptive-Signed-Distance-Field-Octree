@@ -4,6 +4,7 @@
 #include <mutex>
 
 #include <malloc.h>
+#include <atomic>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
