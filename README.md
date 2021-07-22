@@ -5,7 +5,7 @@ Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/pap
 <figure>
     <img src="https://i.imgur.com/HuNFjhh.jpeg"
          alt="Some SDFs">
-    <figcaption>SDF approximations with varying target errors and pre/post continuity optimisation</figcaption>
+    <figcaption>SDF approximations with varying target errors and pre/post continuity optimisation. Note the relatively small visual improvement on the top row as the target error is very small.</figcaption>
 </figure>
 
 ### Library API
