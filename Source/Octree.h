@@ -52,6 +52,9 @@ namespace SDF
 
 		/// Returns the approximated distance from F = 0. Negative implies inside the boundary
 		f64 Query(const Eigen::Vector3d& pt_);
+		
+		/// As with Query, but with an optional unit gradient calculated via CD
+		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_);
 
 		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
 #if HAS_STB
@@ -104,6 +107,9 @@ namespace SDF
 
 		/// Evaluates (2) using the given basis_ at pt_
 		f64 FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_);
+		
+		/// Same with FApprox but with optimisations to allow efficient gradient computation
+		f64 FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitNormal_);
 
 		/// Applies (11)
 		f64 CalculatePolyWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize depth_);
