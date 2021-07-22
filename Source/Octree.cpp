@@ -1582,7 +1582,7 @@ namespace SDF
 		Eigen::setNbThreads(config.threadCount);
 
 		// Solve system and copy new coeffs over
-		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper, Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper>> extSolver(integralMatrix);
+		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper, Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);
 		extSolver.setTolerance(EPSILON_F32);
 		const Eigen::VectorXd newCoeffs = extSolver.solveWithGuess(oldCoeffs, oldCoeffs);
 		memcpy(coeffStore, newCoeffs.data(), sizeof(f64) * nCoeffs_);
