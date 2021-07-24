@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <functional>
+#include <map>
 
 #include <malloc.h>
 
@@ -56,8 +57,8 @@ namespace SDF
 		/// As with Query, but with an optional unit gradient calculated via CD
 		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_);
 
-		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
 #if HAS_STB
+		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
 		void OutputFunctionSlice(const char* fName_, const f64 c_);
 #endif
 

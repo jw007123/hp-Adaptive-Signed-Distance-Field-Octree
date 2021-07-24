@@ -212,10 +212,9 @@ namespace SDF
 
 		// Sanity
 		config_.IsValid();
-
 		config = config_;
 		F = F_;
-
+		
 		// Create root and then obtain a coarse F approximation
 		f64 totalCoeffError = 0.0;
 		CreateRoot();
@@ -467,6 +466,7 @@ namespace SDF
 				Node::Basis basis;
 				basis.degree = curChild.basis.degree;
 				basis.coeffs = coeffStore + curChild.basis.coeffsStart;
+
 				return FApprox(basis, curChild.aabb, pt_, curChild.depth);
 			}
 			else
@@ -506,6 +506,7 @@ namespace SDF
 				Node::Basis basis;
 				basis.degree = curChild.basis.degree;
 				basis.coeffs = coeffStore + curChild.basis.coeffsStart;
+
 				return FApproxWithGradient(basis, curChild.aabb, pt_, curChild.depth, unitGradient_);
 			}
 			else
@@ -523,8 +524,7 @@ namespace SDF
 
 		Node& rootNode = nodes.back();
 		rootNode.depth = 0;
-		rootNode.aabb.min() = Eigen::Vector3f(-0.5f, -0.5f, -0.5f);
-		rootNode.aabb.max() = Eigen::Vector3f(0.5f, 0.5f, 0.5f);
+		rootNode.aabb = Eigen::AlignedBox3f(Eigen::Vector3f(-0.5, -0.5, -0.5), Eigen::Vector3f(0.5, 0.5, 0.5));
 
 		Subdivide(0);
 	}
@@ -545,7 +545,7 @@ namespace SDF
 		}
 
 		// Equation (9)
-		return (1.0f / (7.0f * LegendreCoeffientCount[inputData_.node.basis.degree])) * (inputData_.nodeIdxAndErr.second - 8.0f * maxNewErr);
+		return (1.0 / (7.0 * LegendreCoeffientCount[inputData_.node.basis.degree])) * (inputData_.nodeIdxAndErr.second - 8.0 * maxNewErr);
 	}
 
 
@@ -816,70 +816,69 @@ namespace SDF
 	void Octree::OutputFunctionSlice(const char* fName_, const f64 c_)
 	{
 		// Obtain mem and set size
-		const usize width = 2048;
-		const usize height = 2048;
-		f32* sdfVals = (f32*)malloc(sizeof(f32) * width * height);
-		u8* imageBytes = (u8*)malloc(width * height * 3);
+		const usize nSamples = 2048;
+		f64* sdfVals = (f64*)malloc(sizeof(f64) * nSamples * nSamples);
+		u8* imageBytes = (u8*)malloc(nSamples * nSamples * 3);
 
 		// Fill in pixels
-		std::pair<f32, f32> minMaxPosVals = { std::numeric_limits<f32>::max(), 0.0f };
-		std::pair<f32, f32> minMaxNegVals = { 0.0f, std::numeric_limits<f32>::max() * -1.0f };
-		for (usize i = 0; i < width; ++i)
+		std::pair<f64, f64> minMaxPosVals = { std::numeric_limits<f64>::max(), 0.0 };
+		std::pair<f64, f64> minMaxNegVals = { 0.0, std::numeric_limits<f64>::max() * -1.0 };
+		for (usize i = 0; i < nSamples; ++i)
 		{
-			for (usize j = 0; j < height; ++j)
+			for (usize j = 0; j < nSamples; ++j)
 			{
 				// Generate sample
-				Eigen::Vector3f sampleLoc = nodes[0].aabb.min();
-				sampleLoc.x() += (i + 0.5f) / width;
-				sampleLoc.y() += (j + 0.5f) / height;
+				Eigen::Vector3d sampleLoc = nodes[0].aabb.min().cast<f64>();
+				sampleLoc.x() += ((j + 0.5) / nSamples);
+				sampleLoc.y() += ((i + 0.5) / nSamples);
 				sampleLoc.z() = c_;
 
 				// Update 
-				const f32 sdfVal = Query(sampleLoc.cast<f64>());
-				if (sdfVal > 0.0f)
+				const f64 sdfVal = Query(sampleLoc);
+				if (sdfVal > EPSILON_F32)
 				{
-					minMaxPosVals.first = std::min<f32>(sdfVal, minMaxPosVals.first);
-					minMaxPosVals.second = std::max<f32>(sdfVal, minMaxPosVals.second);
+					minMaxPosVals.first = std::min<f64>(sdfVal, minMaxPosVals.first);
+					minMaxPosVals.second = std::max<f64>(sdfVal, minMaxPosVals.second);
 				}
 				else
 				{
-					minMaxNegVals.first = std::min<f32>(sdfVal, minMaxNegVals.first);
-					minMaxNegVals.second = std::max<f32>(sdfVal, minMaxNegVals.second);
+					minMaxNegVals.first = std::min<f64>(sdfVal, minMaxNegVals.first);
+					minMaxNegVals.second = std::max<f64>(sdfVal, minMaxNegVals.second);
 				}
 
-				sdfVals[i * height + j] = sdfVal;
+				sdfVals[i * nSamples + j] = sdfVal;
 			}
 		}
 
 		// Rescale to obtain better image constrant
-		for (usize i = 0; i < width; ++i)
+		for (usize i = 0; i < nSamples; ++i)
 		{
-			for (usize j = 0; j < height; ++j)
+			for (usize j = 0; j < nSamples; ++j)
 			{
-				const f32 unscaledVal = sdfVals[i * height + j];
+				const f32 unscaledVal = sdfVals[i * nSamples + j];
 				if (unscaledVal > 0.0f)
 				{
 					const u8 scaledByte = 255 * (unscaledVal - minMaxPosVals.second) / (minMaxPosVals.first - minMaxPosVals.second);
 
-					imageBytes[3 * (i * height + j)] = 0;
-					imageBytes[3 * (i * height + j) + 1] = scaledByte;
-					imageBytes[3 * (i * height + j) + 2] = 0;
+					imageBytes[3 * (i * nSamples + j)] = 0;
+					imageBytes[3 * (i * nSamples + j) + 1] = scaledByte;
+					imageBytes[3 * (i * nSamples + j) + 2] = 0;
 				}
 				else
 				{
 					const u8 scaledByte = 255 * (unscaledVal - minMaxNegVals.first) / (minMaxNegVals.second - minMaxNegVals.first);
 
-					imageBytes[3 * (i * height + j)] = 0;
-					imageBytes[3 * (i * height + j) + 1] = 0;
-					imageBytes[3 * (i * height + j) + 2] = scaledByte;
+					imageBytes[3 * (i * nSamples + j)] = 0;
+					imageBytes[3 * (i * nSamples + j) + 1] = 0;
+					imageBytes[3 * (i * nSamples + j) + 2] = scaledByte;
 				}
 			}
 		}
 
 		// Write to file
-		char fNameWithExt[1024];
+		char fNameWithExt[PATH_MAX];
 		sprintf(fNameWithExt, "%s.bmp", fName_);
-		bool success = stbi_write_bmp(fNameWithExt, width, height, 3, imageBytes);
+		bool success = stbi_write_bmp(fNameWithExt, nSamples, nSamples, 3, imageBytes);
 		assert(success);
 
 		// Cleanup
@@ -944,8 +943,8 @@ namespace SDF
 
 		// Determine GQ steps to perform
 		const usize maxDegree = std::max<usize>(nodeA.basis.degree, nodeB.basis.degree);
-		const usize GQStart = SumToN[4 * maxDegree];
-		const usize GQEnd = SumToN[4 * maxDegree + 1];
+		const usize GQStart = SumToN[maxDegree];
+		const usize GQEnd = SumToN[maxDegree + 1];
 
 		// Determine shared face scale
 		const usize depthDiff = nodeA.depth > nodeB.depth ? (nodeA.depth - nodeB.depth) : (nodeB.depth - nodeA.depth);
