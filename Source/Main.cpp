@@ -5,8 +5,6 @@
 #include "BuildThreadPool.cpp"
 #include "UnitTests.cpp"
 
-#include <iostream>
-
 int main()
 {
 	SDF::UnitTests unitTests;
