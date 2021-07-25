@@ -85,7 +85,3 @@ To add context to the perfomance figures, all examples were generated on a PC eq
 ### Future Improvements
 
 * Bite the bullet and significantly improve the CMake code and test compilation on other platforms (Linux etc).
-
-* Introduce a few more functions to API such as QueryRay and Query with an optional normal return.
-
-* Implement a full pipeline for .obj mesh &#8594; accelerated exact SDF  &#8594; hp octree.
