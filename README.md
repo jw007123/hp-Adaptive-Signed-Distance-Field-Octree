@@ -61,9 +61,6 @@ For more complex SDFs and smaller target errors, serialisation is fully supporte
   someNewOctree.FromMemoryBlock(SDF::MemoryBlock{ someSize, somePtr });
 ```
 
-### Building
-Currently a WIP outside of a basic Main.cpp program included in the source.
-
 ### Examples
 
 For each example, we have a slice of the approximated SDF and the octree structure at z = 0. In these cases, the function being approximated was a simple union for shapes that have closed-form SDFs readily available on the Internet. The colours in the right portion of the image correspond to basis polynomial degree with:
