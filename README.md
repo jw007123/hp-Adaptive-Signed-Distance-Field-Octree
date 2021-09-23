@@ -61,9 +61,6 @@ For more complex SDFs and smaller target errors, serialisation is fully supporte
   someNewOctree.FromMemoryBlock(SDF::MemoryBlock{ someSize, somePtr });
 ```
 
-### Building
-Currently a WIP outside of a basic Main.cpp program included in the source.
-
 ### Examples
 
 For each example, we have a slice of the approximated SDF and the octree structure at z = 0. In these cases, the function being approximated was a simple union for shapes that have closed-form SDFs readily available on the Internet. The colours in the right portion of the image correspond to basis polynomial degree with:
@@ -85,7 +82,3 @@ To add context to the perfomance figures, all examples were generated on a PC eq
 ### Future Improvements
 
 * Bite the bullet and significantly improve the CMake code and test compilation on other platforms (Linux etc).
-
-* Introduce a few more functions to API such as QueryRay and Query with an optional normal return.
-
-* Implement a full pipeline for .obj mesh &#8594; accelerated exact SDF  &#8594; hp octree.
