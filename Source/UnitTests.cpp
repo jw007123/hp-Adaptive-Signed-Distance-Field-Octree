@@ -68,7 +68,7 @@ namespace SDF
 		hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce = false;
-		hpConfig.threadCount = 12;
+        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		Octree hpOctree;
 		hpOctree.Create(hpConfig, SphereFunc);
@@ -103,7 +103,7 @@ namespace SDF
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce = true;
 		hpConfig.continuity.strength = 8.0;
-		hpConfig.threadCount = 12;
+        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		Octree hpOctree;
 		hpOctree.Create(hpConfig, SphereFunc);
@@ -138,7 +138,7 @@ namespace SDF
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce = true;
 		hpConfig.continuity.strength = 8.0;
-		hpConfig.threadCount = 12;
+        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		MemoryBlock hpBlock;
 		{
