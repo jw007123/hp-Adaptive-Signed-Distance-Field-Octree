@@ -40,6 +40,12 @@ namespace SDF
 					break;
 				}
 
+                case Test::Copying:
+                {
+                    testPassed = TestOctreeCopying();
+                    break;
+                }
+
 				default:
 					assert(0);
 			}
@@ -165,4 +171,54 @@ namespace SDF
 
 		return true;
 	}
+
+
+    bool UnitTests::TestOctreeCopying()
+    {
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        {
+            return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        Config hpConfig;
+        hpConfig.targetErrorThreshold = pow(10, -10);
+        hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
+        hpConfig.nearnessWeighting.strength = 3.0;
+        hpConfig.continuity.enforce = false;
+        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+
+        Octree hpOctree;
+        hpOctree.Create(hpConfig, SphereFunc);
+
+        Octree otherOctree = hpOctree;
+
+        const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+        for (usize i = 0; i < 1000000; ++i)
+        {
+            const Eigen::Vector3d sample(box.sample());
+            const f64 octS = otherOctree.Query(sample);
+            const f64 trueS = SphereFunc(sample);
+
+            if (abs(octS - trueS) > 0.01)
+            {
+                return false;
+            }
+        }
+
+        otherOctree = std::move(hpOctree);
+
+        for (usize i = 0; i < 1000000; ++i)
+        {
+            const Eigen::Vector3d sample(box.sample());
+            const f64 octS = otherOctree.Query(sample);
+            const f64 trueS = SphereFunc(sample);
+
+            if (abs(octS - trueS) > 0.01)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

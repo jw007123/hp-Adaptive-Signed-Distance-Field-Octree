@@ -17,6 +17,68 @@ namespace SDF
 	}
 
 
+    Octree::Octree(const Octree& other_)
+    {
+        // Easy to copy
+        config = other_.config;
+        nodes = other_.nodes;
+
+        // Count coeffs
+        usize nCoeffs = 0;
+        for (usize i = 0; i < nodes.size(); ++i)
+        {
+            if (nodes[i].basis.degree != 0)
+            {
+                nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
+            }
+        }
+
+        // Copy over
+        coeffStore = (f64*)malloc(sizeof(f64) * nCoeffs);
+        memcpy(coeffStore, other_.coeffStore, sizeof(f64) * nCoeffs);
+    }
+
+
+    Octree& Octree::operator=(const Octree& other_)
+    {
+        Clear();
+
+        // Easy to copy
+        config = other_.config;
+        nodes  = other_.nodes;
+        
+        // Count coeffs
+        usize nCoeffs = 0;
+        for (usize i = 0; i < nodes.size(); ++i)
+        {
+            if (nodes[i].basis.degree != 0)
+            {
+                nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
+            }
+        }
+
+        // Copy over
+        coeffStore = (f64*)malloc(sizeof(f64) * nCoeffs);
+        memcpy(coeffStore, other_.coeffStore, sizeof(f64) * nCoeffs);
+
+        return *this;
+    }
+
+
+    Octree& Octree::operator=(Octree&& other_)
+    {
+        Clear();
+
+        config     = other_.config;
+        nodes      = std::move(other_.nodes);
+        coeffStore = other_.coeffStore;
+
+        other_.coeffStore = nullptr;
+
+        return *this;
+    }
+
+
 	void Octree::UniformlyRefine(f64& totalCoeffError_)
 	{
 		// Perform a coarse refinement of 4 levels and fit a degree 2 polynomial at each level

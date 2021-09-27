@@ -18,6 +18,7 @@ namespace SDF
 			Creation = 0,
 			Continuity = 1,
 			Serialisation = 2,
+            Copying = 3,
 			Num
 		};
 
@@ -25,7 +26,8 @@ namespace SDF
 		{
 			"Octree Creation: ",
 			"Octree Continuity: ",
-			"Octree Serialisation: "
+			"Octree Serialisation: ",
+            "Octree Copying: "
 		};
 
 		bool TestOctreeCreation();
@@ -33,5 +35,7 @@ namespace SDF
 		bool TestOctreeContinuity();
 		
 		bool TestOctreeSerialisation();
+
+        bool TestOctreeCopying();
 	};
 }

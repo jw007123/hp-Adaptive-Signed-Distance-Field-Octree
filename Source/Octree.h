@@ -35,9 +35,10 @@ namespace SDF
 		Octree();
 		~Octree();
 
-		/// Don't want to allow copying just yet
-		Octree& operator=(const Octree& other_) = delete;
-		Octree& operator=(Octree&& other_) = delete;
+		/// Copying/Moving
+        Octree(const Octree& other_);
+		Octree& operator=(const Octree& other_);
+		Octree& operator=(Octree&& other_);
 
 		/// Approximates F_ inside [-0.5f, 0.5f]^3 using the parameters in config_
 		void Create(const Config& config_, std::function<f64(const Eigen::Vector3d& pt_)> F_);
