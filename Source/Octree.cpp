@@ -516,9 +516,9 @@ namespace SDF
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
 			const f32 curNodeAABBHalf = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
-			const usize xIdx = (pt_.x() > (aabbMin.x() + curNodeAABBHalf));
-			const usize yIdx = (pt_.y() > (aabbMin.y() + curNodeAABBHalf)) << 1;
-			const usize zIdx = (pt_.z() > (aabbMin.z() + curNodeAABBHalf)) << 2;
+			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
+			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
+			const usize zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
@@ -538,6 +538,47 @@ namespace SDF
 			}
 		}
 	}
+
+
+    bool Octree::QueryRay(const Ray& ray_, const f64 tMax_, f64& t_)
+    {
+        constexpr usize MAX_STEPS = 200;
+        constexpr f64 eps         = 0.0001;
+        constexpr f64 minStep     = 0.0001;
+
+        Eigen::Vector3d intMin;
+        Eigen::Vector3d intMax;
+        
+        // Either misses root or we find first intersection point and clamp to that
+        if (!ray_.IntersectAABB(nodes[0].aabb.cast<f64>(), intMin, intMax))
+        {
+            return false;
+        }
+
+        f64 d = 0.0;
+
+        for (usize i = 0; i < MAX_STEPS; ++i)
+        {
+            const f64 v = Query(intMin + d * ray_.direction);
+
+            if (v < eps)
+            {
+                t_ = v;
+
+                return true;
+            }
+
+            // Assume max of 5% err in approximated SDF and move by at least minStep 
+            d += v * 0.95 + minStep;
+
+            if (d > tMax_)
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
 	
 	
 	f64 Octree::QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitGradient_)
@@ -556,9 +597,9 @@ namespace SDF
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
 			const f32 curNodeAABBHalf = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
-			const usize xIdx = (pt_.x() > (aabbMin.x() + curNodeAABBHalf));
-			const usize yIdx = (pt_.y() > (aabbMin.y() + curNodeAABBHalf)) << 1;
-			const usize zIdx = (pt_.z() > (aabbMin.z() + curNodeAABBHalf)) << 2;
+			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
+			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
+			const usize zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
@@ -667,7 +708,7 @@ namespace SDF
 		const Eigen::Vector3d unitPt = (pt_ - aabb_.center().cast<f64>()) * (2 << depth_);
 
 		// CD eps
-		const f64 eps = 0.01;
+		const f64 eps = 0.0001;
 
 		// Create lookup table for pt_
 		f64 LpXLookup[BASIS_MAX_DEGREE][3][3];

@@ -1,3 +1,4 @@
+#include "Ray.cpp"
 #include "Config.cpp"
 #include "Node.cpp"
 #include "Octree.cpp"

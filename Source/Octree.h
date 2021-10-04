@@ -18,7 +18,7 @@
 #endif
 
 #include "Literals.h"
-
+#include "Ray.h"
 #include "Utility.h"
 #include "Legendre.h"
 #include "Node.h"
@@ -54,7 +54,11 @@ namespace SDF
 
 		/// Returns the approximated distance from F = 0. Negative implies inside the boundary
 		f64 Query(const Eigen::Vector3d& pt_);
-		
+
+        /// NOTE: Untested
+        /// Returns whether a ray intersected the SDF and the value of the first hit if it does
+        bool QueryRay(const Ray& ray_, const f64 tMax_, f64& t_);
+
 		/// As with Query, but with an optional unit gradient calculated via CD
 		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_);
 
