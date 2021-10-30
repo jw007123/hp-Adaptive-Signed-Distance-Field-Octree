@@ -550,7 +550,7 @@ namespace SDF
         Eigen::Vector3d intMax;
         
         // Either misses root or we find first intersection point and clamp to that
-        if (!nodes[0].aabb.contains(ray_.origin.cast<f64>()) && !ray_.IntersectAABB(nodes[0].aabb.cast<f64>(), intMin, intMax))
+        if (!nodes[0].aabb.contains(ray_.origin.cast<f32>()) && !ray_.IntersectAABB(nodes[0].aabb.cast<f64>(), intMin, intMax))
         {
             return false;
         }
