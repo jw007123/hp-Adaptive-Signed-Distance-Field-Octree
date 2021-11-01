@@ -4,6 +4,7 @@
 #include "Eigen/Geometry"
 
 #include "Literals.h"
+#include "Utility.h"
 
 namespace SDF
 {

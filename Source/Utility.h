@@ -104,7 +104,7 @@ namespace SDF
 
 			for (usize i = 0; i <= BASIS_MAX_DEGREE; ++i)
 			{
-				values[i] = f * (i + 1) * (i + 2) * (i + 3);
+				values[i] = (usize)(f * (i + 1) * (i + 2) * (i + 3));
 			}
 		}
 		usize values[BASIS_MAX_DEGREE + 1];
@@ -112,7 +112,7 @@ namespace SDF
 		static constexpr const usize Size()
 		{
 			const f64 f = 1.0 / 6.0;
-			return f * (BASIS_MAX_DEGREE + 1) * (BASIS_MAX_DEGREE + 2) * (BASIS_MAX_DEGREE + 3);
+			return (usize)(f * (BASIS_MAX_DEGREE + 1) * (BASIS_MAX_DEGREE + 2) * (BASIS_MAX_DEGREE + 3));
 		}
 	};
 	constexpr const usize (&LegendreCoeffientCount)[BASIS_MAX_DEGREE + 1] = LegendreCoefficientCountCalc().values;

@@ -27,7 +27,7 @@ namespace SDF
         usize nCoeffs = 0;
         for (usize i = 0; i < nodes.size(); ++i)
         {
-            if (nodes[i].basis.degree != 0)
+            if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
             {
                 nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
             }
@@ -51,7 +51,7 @@ namespace SDF
         usize nCoeffs = 0;
         for (usize i = 0; i < nodes.size(); ++i)
         {
-            if (nodes[i].basis.degree != 0)
+            if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
             {
                 nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
             }
@@ -229,7 +229,7 @@ namespace SDF
 							if (nodes[newOutput.nodeIdx].childIdx == -1)
 							{
 								free(nodes[newOutput.nodeIdx].basis.coeffs);
-								nodes[newOutput.nodeIdx].basis.degree = 0;
+								nodes[newOutput.nodeIdx].basis.degree = (BASIS_MAX_DEGREE + 1);
 
 								Subdivide(newOutput.nodeIdx);
 
@@ -330,7 +330,7 @@ namespace SDF
 		usize nCoeffs = 0;
 		for (usize i = 0; i < nodes.size(); ++i)
 		{
-			if (nodes[i].basis.degree != 0)
+			if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
 				nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
 			}
@@ -379,7 +379,7 @@ namespace SDF
 		usize nCoeffs = 0;
 		for (usize i = 0; i < nodes.size(); ++i)
 		{
-			if (nodes[i].basis.degree != 0)
+			if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
 				nCoeffs += LegendreCoeffientCount[nodes[i].basis.degree];
 			}
@@ -396,7 +396,7 @@ namespace SDF
 		usize curCoeffIdx = 0;
 		for (usize i = 0; i < nodes.size(); ++i)
 		{
-			if (nodes[i].basis.degree != 0)
+			if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
 				// Move mem
 				memcpy(coeffStore + curCoeffIdx, nodes[i].basis.coeffs, sizeof(f64) * LegendreCoeffientCount[nodes[i].basis.degree]);
@@ -481,7 +481,7 @@ namespace SDF
 				{
 					free(pBasis.coeffs);
 
-					for (usize i = 0; i < 8; ++i)
+					for (u8 i = 0; i < 8; ++i)
 					{
 						BuildThreadPool::Output newOutput;
 						newOutput.initialErr = newJob.nodeIdxAndErr.second;
@@ -522,7 +522,7 @@ namespace SDF
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
-			if (curChild.basis.degree != 0)
+			if (curChild.basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
 				// Leaf
 				Node::Basis basis;
@@ -603,7 +603,7 @@ namespace SDF
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
-			if (curChild.basis.degree != 0)
+			if (curChild.basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
 				// Leaf
 				Node::Basis basis;
@@ -654,8 +654,8 @@ namespace SDF
 
 	f64 Octree::EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_)
 	{
-		const usize basisDegree = inputData_.node.basis.degree;
-		const usize nodeDepth = inputData_.node.depth;
+		const u8 basisDegree = inputData_.node.basis.degree;
+		const u8 nodeDepth   = inputData_.node.depth;
 
 		// Copy current node basis into P
 		pBasis_.coeffs = (f64*)malloc(sizeof(f64) * LegendreCoeffientCount[basisDegree + 1]);
@@ -774,7 +774,7 @@ namespace SDF
 	}
 
 
-	f64 Octree::FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize degree_, const usize depth_)
+	f64 Octree::FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u8 degree_, const usize depth_)
 	{
 		assert(basis_.degree < degree_);
 
@@ -859,6 +859,8 @@ namespace SDF
 			default:
 				assert(0);
 		}
+
+        return newError;
 	}
 
 
@@ -900,8 +902,7 @@ namespace SDF
 
 	void Octree::Subdivide(const usize nodeIdx_)
 	{
-		usize childIdx = nodes.size();
-		nodes[nodeIdx_].childIdx = childIdx;
+		nodes[nodeIdx_].childIdx = (u32)nodes.size();
 
 		for (usize i = 0; i < 8; ++i)
 		{
@@ -958,10 +959,10 @@ namespace SDF
 		{
 			for (usize j = 0; j < nSamples; ++j)
 			{
-				const f32 unscaledVal = sdfVals[i * nSamples + j];
+				const f32 unscaledVal = (f32)sdfVals[i * nSamples + j];
 				if (unscaledVal > 0.0f)
 				{
-					const u8 scaledByte = 255 * (unscaledVal - minMaxPosVals.second) / (minMaxPosVals.first - minMaxPosVals.second);
+					const u8 scaledByte = (u8)(255 * (unscaledVal - minMaxPosVals.second) / (minMaxPosVals.first - minMaxPosVals.second));
 
 					imageBytes[3 * (i * nSamples + j)] = 0;
 					imageBytes[3 * (i * nSamples + j) + 1] = scaledByte;
@@ -969,7 +970,7 @@ namespace SDF
 				}
 				else
 				{
-					const u8 scaledByte = 255 * (unscaledVal - minMaxNegVals.first) / (minMaxNegVals.second - minMaxNegVals.first);
+					const u8 scaledByte = (u8)(255 * (unscaledVal - minMaxNegVals.first) / (minMaxNegVals.second - minMaxNegVals.first));
 
 					imageBytes[3 * (i * nSamples + j)] = 0;
 					imageBytes[3 * (i * nSamples + j) + 1] = 0;
@@ -980,7 +981,7 @@ namespace SDF
 
 		// Write to file
 		char fNameWithExt[PATH_MAX];
-		sprintf(fNameWithExt, "%s.bmp", fName_);
+		sprintf_s(fNameWithExt, PATH_MAX, "%s.bmp", fName_);
 		bool success = stbi_write_bmp(fNameWithExt, nSamples, nSamples, 3, imageBytes);
 		assert(success);
 
@@ -1036,6 +1037,8 @@ namespace SDF
 
 	void Octree::EvaluateSharedFaceIntegralNumerically(const usize nodeIdxA_, const usize nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_)
 	{
+        using StorageIndex = Eigen::SparseMatrix<f64>::StorageIndex;
+
 		const Node& nodeA = nodes[nodeIdxA_];
 		const Node& nodeB = nodes[nodeIdxB_];
 
@@ -1111,9 +1114,10 @@ namespace SDF
 				integral *= sharedFaceScale(Mod3Lookup[dim_][1]) * sharedFaceScale(Mod3Lookup[dim_][2]) * basisWeights;
 
 				// Finally...
-				if (std::abs<f32>(integral) > EPSILON_F32)
+				if (std::abs<f32>((f32)integral) > EPSILON_F32)
 				{
-					matTriplets_.push_back(Eigen::Triplet<f64>(nodeA.basis.coeffsStart + i, nodeA.basis.coeffsStart + j, integral));
+					matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i), 
+                                                               (StorageIndex)(nodeA.basis.coeffsStart + j), integral));
 				}
 			}
 		}
@@ -1171,10 +1175,12 @@ namespace SDF
 				}
 				integral *= sharedFaceScale(Mod3Lookup[dim_][1]) * sharedFaceScale(Mod3Lookup[dim_][2]) * basisWeights * -1.0;
 
-				if (std::abs<f32>(integral) > EPSILON_F32)
+				if (std::abs<f32>((f32)integral) > EPSILON_F32)
 				{
-					matTriplets_.push_back(Eigen::Triplet<f64>(nodeA.basis.coeffsStart + i, nodeB.basis.coeffsStart + j, integral));
-					matTriplets_.push_back(Eigen::Triplet<f64>(nodeB.basis.coeffsStart + j, nodeA.basis.coeffsStart + i, integral));
+					matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
+                                                               (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+					matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + j), 
+                                                               (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
 				}
 			}
 		}
@@ -1221,9 +1227,10 @@ namespace SDF
 				}
 				integral *= sharedFaceScale(Mod3Lookup[dim_][1]) * sharedFaceScale(Mod3Lookup[dim_][2]) * basisWeights;
 				
-				if (std::abs<f32>(integral) > EPSILON_F32)
+				if (std::abs<f32>((f32)integral) > EPSILON_F32)
 				{
-					matTriplets_.push_back(Eigen::Triplet<f64>(nodeB.basis.coeffsStart + i, nodeB.basis.coeffsStart + j, integral));
+					matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + i), 
+                                                               (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
 				}
 			}
 		}
@@ -1232,6 +1239,8 @@ namespace SDF
 
 	void Octree::EvaluateSharedFaceIntegralAnalytically(const usize nodeIdxA_, const usize nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_)
 	{
+        using StorageIndex = Eigen::SparseMatrix<f64>::StorageIndex;
+
 		const Node& nodeA = nodes[nodeIdxA_];
 		const Node& nodeB = nodes[nodeIdxB_];
 
@@ -1254,7 +1263,8 @@ namespace SDF
 				integral *= LpX(BasisIndexValues[j][dim_], 1.0);
 				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeA.depth];
 
-				matTriplets_.push_back(Eigen::Triplet<f64>(nodeA.basis.coeffsStart + i, nodeA.basis.coeffsStart + j, integral));
+                matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
+                                                           (StorageIndex)(nodeA.basis.coeffsStart + j), integral));
 			}
 		}
 
@@ -1277,8 +1287,10 @@ namespace SDF
 				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
 				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
-				matTriplets_.push_back(Eigen::Triplet<f64>(nodeA.basis.coeffsStart + i, nodeB.basis.coeffsStart + j, integral));
-				matTriplets_.push_back(Eigen::Triplet<f64>(nodeB.basis.coeffsStart + j, nodeA.basis.coeffsStart + i, integral));
+                matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
+                                                           (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+                matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + j),
+                                                           (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
 			}
 		}
 
@@ -1301,7 +1313,8 @@ namespace SDF
 				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
 				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
-				matTriplets_.push_back(Eigen::Triplet<f64>(nodeB.basis.coeffsStart + i, nodeB.basis.coeffsStart + j, integral));
+                matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + i),
+                                                           (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
 			}
 		}
 	}
@@ -1570,7 +1583,9 @@ namespace SDF
 		// Regularise
 		for (usize i = 0; i < nCoeffs_; ++i)
 		{
-			integralMatrixTriplets.push_back(Eigen::Triplet<f64>(i, i, config.continuity.strength));
+			integralMatrixTriplets.push_back(Eigen::Triplet<f64>((Eigen::SparseMatrix<f64>::StorageIndex)i, 
+                                                                 (Eigen::SparseMatrix<f64>::StorageIndex)i, 
+                                                                  config.continuity.strength));
 		}
 
 		// Create sparse mat from entries
@@ -1587,7 +1602,7 @@ namespace SDF
 
 		// If OpenMP enabled, leverage additional threads
 		Eigen::initParallel();
-		Eigen::setNbThreads(config.threadCount);
+		Eigen::setNbThreads((i32)config.threadCount);
 
 		// Solve system and copy new coeffs over
 		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper, Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);

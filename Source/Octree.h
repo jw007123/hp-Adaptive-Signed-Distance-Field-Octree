@@ -94,7 +94,7 @@ namespace SDF
 		f64 EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_);
 
 		/// Fits a basis of degree_ to basis_ over the volume aabb_. Returns the error
-		f64 FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize degree_, const usize depth_);
+		f64 FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u8 degree_, const usize depth_);
 
 		/// Subdivides nodes[nodeIdx_]. Doesn't fit any polynomials to the children
 		void Subdivide(const usize nodeIdx_);

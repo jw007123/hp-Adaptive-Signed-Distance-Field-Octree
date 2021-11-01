@@ -59,6 +59,8 @@ namespace SDF
 				printf("\n%sFailed", TestStrings[i]);
 			}
 		}
+
+        std::this_thread::sleep_for(std::chrono::seconds(5));
 	}
 
 
