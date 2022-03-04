@@ -59,6 +59,12 @@ namespace SDF
                     break;
                 }
 
+                case Test::NormalQuerying:
+                {
+                    testPassed = TestOctreeNormalQuerying();
+                    break;
+                }
+
 				default:
 					assert(0);
 			}
@@ -352,10 +358,56 @@ namespace SDF
         for (usize i = 0; i < 1000000; ++i)
         {
             const Eigen::Vector3d sample(box.sample());
-            const f64 octS = hpOctree.Query(sample);
+            const f64 octS  = hpOctree.Query(sample);
             const f64 trueS = SphereFunc(sample);
 
             if (abs(octS - trueS) > 0.01)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    bool UnitTests::TestOctreeNormalQuerying()
+    {
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        {
+            return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        Config hpConfig;
+        hpConfig.targetErrorThreshold       = pow(10, -10);
+        hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
+        hpConfig.nearnessWeighting.strength = 3.0;
+        hpConfig.continuity.enforce         = true;
+        hpConfig.continuity.strength        = 8.0;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+
+        Octree hpOctree;
+        hpOctree.Create(hpConfig, SphereFunc);
+
+        const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+        for (usize i = 0; i < 1000000; ++i)
+        {
+            const Eigen::Vector3d sample(box.sample());
+
+            Eigen::Vector3d octNorm;
+            hpOctree.QueryWithGradient(sample, octNorm);
+
+            Eigen::Vector3d trueNorm;
+            for (usize j = 0; j < 3; ++j)
+            {
+                const f64 eps        = 0.0001;
+                Eigen::Vector3d eps3 = Eigen::Vector3d::Zero();
+
+                eps3(j)    += eps;
+                trueNorm(j) = (SphereFunc(sample + eps3) - SphereFunc(sample - eps3)) / (2.0 * eps);
+            }
+
+            if ((octNorm - trueNorm).norm() > 0.5)
             {
                 return false;
             }

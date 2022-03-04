@@ -15,12 +15,13 @@ namespace SDF
 	private:
 		enum Test : u8
 		{
-			Creation      = 0,
-			Continuity    = 1,
-			Serialisation = 2,
-            Copying       = 3,
-            SDFOperations = 4,
-            CustomDomains = 5,
+			Creation       = 0,
+			Continuity     = 1,
+			Serialisation  = 2,
+            Copying        = 3,
+            SDFOperations  = 4,
+            CustomDomains  = 5,
+            NormalQuerying = 6,
 			Num
 		};
 
@@ -31,7 +32,8 @@ namespace SDF
 			"Octree Serialisation: ",
             "Octree Copying: ",
             "Octree SDF Operations: ",
-            "Octree Custom Domains: "
+            "Octree Custom Domains: ",
+            "Octree Normal Querying: "
 		};
 
 		bool TestOctreeCreation();
@@ -45,5 +47,7 @@ namespace SDF
         bool TestOctreeSDFOperations();
 
         bool TestOctreeCustomDomains();
+
+        bool TestOctreeNormalQuerying();
 	};
 }
