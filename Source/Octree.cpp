@@ -323,6 +323,11 @@ namespace SDF
         /*
             Note: Requires keeping old tree around until operation has completed, but a lot simpler
             than doing operation over each leaf node and then recursively merging redundant leaves.
+
+            Another caveat is that continuity corrections will change areas unaffected by the 
+            union operation even if this isn't needed. This will have the effect of moving our approximation
+            further and further away from the original SDF in these areas. Could be fixed by flagging
+            nodes that have/haven't changed and removing shared faces of the latter from the optimisation.
         */
         Octree oldTree = std::move(*this);
         
