@@ -25,7 +25,8 @@ namespace SDF
 		assert(targetErrorThreshold > 0.0);
 		assert(threadCount > 0);
         assert(root.volume() > 0.0);
-
+        assert(root.sizes()(0) == root.sizes()(1) && root.sizes()(1) == root.sizes()(2));
+        
 		if (nearnessWeighting.type != Config::NearnessWeighting::None)
 		{
 			assert(nearnessWeighting.strength > 0.0);
