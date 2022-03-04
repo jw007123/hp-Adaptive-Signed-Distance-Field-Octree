@@ -41,7 +41,7 @@ namespace SDF
 		Octree& operator=(const Octree& other_);
 		Octree& operator=(Octree&& other_);
 
-		/// Approximates F_ inside [-0.5f, 0.5f]^3 using the parameters in config_
+		/// Approximates F_ using the parameters in config_
 		void Create(const Config& config_, std::function<f64(const Eigen::Vector3d& pt_)> F_);
 
         /// Resultant SDF = Min(oldF, F_)
@@ -60,7 +60,7 @@ namespace SDF
 		void FromMemoryBlock(MemoryBlock octBlock_);
 
 		/// Serialises an octree to a memory block owned by malloc
-		MemoryBlock ToMemoryBlock();
+		MemoryBlock ToMemoryBlock() const;
 
 		/// Returns the approximated distance from F = 0. Negative implies inside the boundary
 		f64 Query(const Eigen::Vector3d& pt_) const;

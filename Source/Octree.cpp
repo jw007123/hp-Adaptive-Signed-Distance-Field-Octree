@@ -405,7 +405,7 @@ namespace SDF
 	}
 
 
-	MemoryBlock Octree::ToMemoryBlock()
+	MemoryBlock Octree::ToMemoryBlock() const
 	{
 		MemoryBlock octBlock = { 0, nullptr };
 
