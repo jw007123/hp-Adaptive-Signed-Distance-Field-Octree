@@ -35,7 +35,7 @@ All library objects and functions are namespaced within SDF. The API is intentio
   
   // Query the tree as required
   const Eigen::Vector3d somePt = Eigen::Vector3d::Zero();
-  const double someVal = hpOctree.Query(somePt);
+  const double someVal         = hpOctree.Query(somePt);
 ```
 
 For more complex SDFs and smaller target errors, serialisation is fully supported via SDF::MemoryBlock, which is a simple pointer/size struct owned by malloc:
@@ -66,11 +66,11 @@ For more complex SDFs and smaller target errors, serialisation is fully supporte
 
 For each example, we have a slice of the approximated SDF and the octree structure at z = 0. In these cases, the function being approximated was a simple union for shapes that have closed-form SDFs readily available on the Internet. The colours in the right portion of the image correspond to basis polynomial degree with:
 
-* Grey = 2
-* Green = 3
-* Light Blue = 4
+* Grey        = 2
+* Green       = 3
+* Light Blue  = 4
 * Medium Blue = 5
-* Dark Blue = 6
+* Dark Blue   = 6
 
 To add context to the perfomance figures, all examples were generated on a PC equipped with a Ryzen 5800X and OpenMP enabled to speed up Eigen's ConjugateGradient solver. 
 
