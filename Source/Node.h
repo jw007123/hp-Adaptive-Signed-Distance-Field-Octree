@@ -24,7 +24,7 @@ namespace SDF
 		{
 			union
 			{
-				f64* coeffs;
+				f64*  coeffs;
 				usize coeffsStart;
 			};
 			u8 degree;

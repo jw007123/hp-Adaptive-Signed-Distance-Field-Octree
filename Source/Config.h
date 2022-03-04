@@ -21,10 +21,10 @@ namespace SDF
 		struct Continuity
 		{
 			bool enforce;
-			f64 strength;
+			f64  strength;
 		} continuity;
 
-		f64 targetErrorThreshold;
+		f64   targetErrorThreshold;
 		usize threadCount;
 
 		/// Checks that the config has valid parameters

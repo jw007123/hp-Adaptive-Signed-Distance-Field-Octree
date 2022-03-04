@@ -21,7 +21,7 @@ namespace SDF
     {
         // Easy to copy
         config = other_.config;
-        nodes = other_.nodes;
+        nodes  = other_.nodes;
 
         // Count coeffs
         usize nCoeffs = 0;
@@ -82,18 +82,20 @@ namespace SDF
 	void Octree::UniformlyRefine(f64& totalCoeffError_)
 	{
 		// Perform a coarse refinement of 4 levels and fit a degree 2 polynomial at each level
-		constexpr usize coarseDepth = 4;
+		constexpr usize coarseDepth  = 4;
 		constexpr usize coarseDegree = 2;
+
 		struct Inserter
 		{
 			usize parentIdxs[coarseDepth] = { 0 };
-			usize childNos[coarseDepth] = { 0 };
-			usize depth = 1;
+			usize childNos[coarseDepth]   = { 0 };
+			usize depth                   = 1;
 		} inserter;
+
 		while (1)
 		{
 			const usize curParentIdx = inserter.parentIdxs[inserter.depth - 1];
-			const usize curNodeIdx = nodes[curParentIdx].childIdx + inserter.childNos[inserter.depth - 1];
+			const usize curNodeIdx   = nodes[curParentIdx].childIdx + inserter.childNos[inserter.depth - 1];
 
 			if (inserter.depth < coarseDepth)
 			{
@@ -103,7 +105,7 @@ namespace SDF
 					Subdivide(curNodeIdx);
 
 					inserter.parentIdxs[inserter.depth] = curNodeIdx;
-					inserter.childNos[inserter.depth] = 0;
+					inserter.childNos[inserter.depth]   = 0;
 					inserter.depth++;
 				}
 				else
@@ -135,7 +137,7 @@ namespace SDF
 
 				// Otherwise, fit polynomial to node
 				const f64 newError = FitPolynomial(nodes[curNodeIdx].basis, nodes[curNodeIdx].aabb, coarseDegree, coarseDepth);
-				totalCoeffError_ += newError;
+				totalCoeffError_   += newError;
 
 				// Add to queue
 				std::pair<usize, f64> newNodeIdxAndErr = { curNodeIdx, newError };
@@ -160,12 +162,12 @@ namespace SDF
 	{
 		// Create structs
 		BuildThreadPool::InitialData threadData;
-		threadData.config = config;
-		threadData.inputQueue = new (std::queue<BuildThreadPool::Input>);
-		threadData.inputQueueMutex = new (std::mutex);
-		threadData.outputQueue = new (std::queue<BuildThreadPool::Output>);
+		threadData.config           = config;
+		threadData.inputQueue       = new (std::queue<BuildThreadPool::Input>);
+		threadData.inputQueueMutex  = new (std::mutex);
+		threadData.outputQueue      = new (std::queue<BuildThreadPool::Output>);
 		threadData.outputQueueMutex = new (std::mutex);
-		threadData.shutdownAtom = new (std::atomic<bool>);
+		threadData.shutdownAtom     = new (std::atomic<bool>);
 		threadData.shutdownAtom->store(false);
 
 		// Start threads
@@ -197,7 +199,7 @@ namespace SDF
 
 					BuildThreadPool::Input newInput;
 					newInput.nodeIdxAndErr = nodeIdxAndErr;
-					newInput.node = nodes[nodeIdxAndErr.first];
+					newInput.node          = nodes[nodeIdxAndErr.first];
 					threadData.inputQueue->push(newInput);
 				}
 			}
@@ -236,7 +238,7 @@ namespace SDF
 								totalCoeffError_ -= newOutput.initialErr;
 							}
 
-							newNodeIdx = nodes[newOutput.nodeIdx].childIdx + newOutput.childIdx;
+							newNodeIdx        = nodes[newOutput.nodeIdx].childIdx + newOutput.childIdx;
 							totalCoeffError_ += newOutput.newErr;
 
 							break;
@@ -275,7 +277,7 @@ namespace SDF
 		// Sanity
 		config_.IsValid();
 		config = config_;
-		F = F_;
+		F      = F_;
 		
 		// Create root and then obtain a coarse F approximation
 		f64 totalCoeffError = 0.0;
@@ -312,7 +314,7 @@ namespace SDF
 		Clear();
 
 		const usize nCoeffs = *((usize*)octBlock_.ptr);
-		coeffStore = (f64*)malloc(sizeof(f64) * nCoeffs);
+		coeffStore          = (f64*)malloc(sizeof(f64) * nCoeffs);
 		memcpy(coeffStore, (u8*)octBlock_.ptr + sizeof(usize), sizeof(f64) * nCoeffs);
 
 		const usize nNodes = *((usize*)((u8*)octBlock_.ptr + sizeof(usize) + sizeof(f64) * nCoeffs));
@@ -452,10 +454,10 @@ namespace SDF
 			const f64 pImprovement = EstimatePImprovement(newJob, pBasis, pBasisError);
 
 			// Decide whether to refine in H or P
-			const usize nodeDepth = newJob.node.depth;
+			const usize nodeDepth   = newJob.node.depth;
 			const usize basisDegree = newJob.node.basis.degree;
-			const bool refineP = basisDegree < BASIS_MAX_DEGREE && (nodeDepth == TREE_MAX_DEPTH || pImprovement > hImprovement);
-			const bool refineH = nodeDepth < TREE_MAX_DEPTH && !refineP;
+			const bool refineP      = basisDegree < BASIS_MAX_DEGREE && (nodeDepth == TREE_MAX_DEPTH || pImprovement > hImprovement);
+			const bool refineH      = nodeDepth < TREE_MAX_DEPTH && !refineP;
 
 			// Push to output queue
 			threadData_->outputQueueMutex->lock();
@@ -469,10 +471,10 @@ namespace SDF
 
 					BuildThreadPool::Output newOutput;
 					newOutput.initialErr = newJob.nodeIdxAndErr.second;
-					newOutput.nodeIdx = newJob.nodeIdxAndErr.first;
-					newOutput.basisType = BuildThreadPool::Output::BasisType::P;
-					newOutput.newErr = pBasisError;
-					newOutput.nodeBasis = pBasis;
+					newOutput.nodeIdx    = newJob.nodeIdxAndErr.first;
+					newOutput.basisType  = BuildThreadPool::Output::BasisType::P;
+					newOutput.newErr     = pBasisError;
+					newOutput.nodeBasis  = pBasis;
 
 					threadData_->outputQueue->push(newOutput);
 				}
@@ -485,11 +487,11 @@ namespace SDF
 					{
 						BuildThreadPool::Output newOutput;
 						newOutput.initialErr = newJob.nodeIdxAndErr.second;
-						newOutput.nodeIdx = newJob.nodeIdxAndErr.first;
-						newOutput.basisType = BuildThreadPool::Output::BasisType::H;
-						newOutput.childIdx = i;
-						newOutput.newErr = hBasesErrors[i];
-						newOutput.nodeBasis = hBases[i];
+						newOutput.nodeIdx    = newJob.nodeIdxAndErr.first;
+						newOutput.basisType  = BuildThreadPool::Output::BasisType::H;
+						newOutput.childIdx   = i;
+						newOutput.newErr     = hBasesErrors[i];
+						newOutput.nodeBasis  = hBases[i];
 
 						threadData_->outputQueue->push(newOutput);
 					}
@@ -514,7 +516,7 @@ namespace SDF
 		{
 			const Eigen::Vector3f& aabbMin = nodes[curNodeIdx].aabb.min();
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
-			const f32 curNodeAABBHalf = (aabbMax.x() - aabbMin.x()) * 0.5f;
+			const f32 curNodeAABBHalf      = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
 			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
 			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
@@ -595,7 +597,7 @@ namespace SDF
 		{
 			const Eigen::Vector3f& aabbMin = nodes[curNodeIdx].aabb.min();
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
-			const f32 curNodeAABBHalf = (aabbMax.x() - aabbMin.x()) * 0.5f;
+			const f32 curNodeAABBHalf      = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
 			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
 			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
@@ -627,7 +629,7 @@ namespace SDF
 
 		Node& rootNode = nodes.back();
 		rootNode.depth = 0;
-		rootNode.aabb = Eigen::AlignedBox3f(Eigen::Vector3f(-0.5, -0.5, -0.5), Eigen::Vector3f(0.5, 0.5, 0.5));
+		rootNode.aabb  = Eigen::AlignedBox3f(Eigen::Vector3f(-0.5, -0.5, -0.5), Eigen::Vector3f(0.5, 0.5, 0.5));
 
 		Subdivide(0);
 	}
@@ -644,7 +646,7 @@ namespace SDF
 			hBases_[i].coeffs = (f64*)malloc(sizeof(f64) * LegendreCoeffientCount[inputData_.node.basis.degree]);
 
 			hBasesErrors_[i] = FitPolynomial(hBases_[i], CornerAABB(inputData_.node.aabb, i), inputData_.node.basis.degree, inputData_.node.depth + 1);
-			maxNewErr = std::max<f64>(maxNewErr, hBasesErrors_[i]);
+			maxNewErr        = std::max<f64>(maxNewErr, hBasesErrors_[i]);
 		}
 
 		// Equation (9)
@@ -765,7 +767,7 @@ namespace SDF
 		// Apply procedure p_ times
 		for (usize i = 1; i <= p_; ++i)
 		{
-			Li = LegendreCoefficent[i][0] * x_ * LiMinus1 - LegendreCoefficent[i][1] * LiMinus2;
+			Li       = LegendreCoefficent[i][0] * x_ * LiMinus1 - LegendreCoefficent[i][1] * LiMinus2;
 			LiMinus2 = LiMinus1;
 			LiMinus1 = Li;
 		}
@@ -780,14 +782,14 @@ namespace SDF
 
 		// If we already have a basis, we can re-use coeffs up to degree_ - 1
 		const usize startingIdx = basis_.degree > 0 ? LegendreCoeffientCount[basis_.degree] : 0;
-		const usize endingIdx = LegendreCoeffientCount[degree_];
+		const usize endingIdx   = LegendreCoeffientCount[degree_];
 
 		// Determine GQ steps to perform
 		const usize GQStart = SumToN[4 * degree_];
-		const usize GQEnd = SumToN[4 * degree_ + 1];
+		const usize GQEnd   = SumToN[4 * degree_ + 1];
 
 		// Determine mappings from aabb_ to unit cube
-		const Eigen::Vector3d aabbScale = aabb_.sizes().cast<f64>() * 0.5;
+		const Eigen::Vector3d aabbScale  = aabb_.sizes().cast<f64>() * 0.5;
 		const Eigen::Vector3d aabbCentre = aabb_.center().cast<f64>();
 
 		// Set coeffs to 0
@@ -806,9 +808,9 @@ namespace SDF
 					const Eigen::Vector3d aabbSample = unitSample.cwiseProduct(aabbScale) + aabbCentre;
 
 					// Evaluate F at this position
-					const f64 weightsMult = unitWeights.prod();
+					const f64 weightsMult    = unitWeights.prod();
 					const f64 normScalesMult = aabbScale.prod();
-					const f64 FaabSample = normScalesMult * weightsMult * F(aabbSample);
+					const f64 FaabSample     = normScalesMult * weightsMult * F(aabbSample);
 
 					// Use this sample to continue calculating coeffs
 					for (usize c = startingIdx; c < endingIdx; ++c)
@@ -910,7 +912,7 @@ namespace SDF
 
 			// Create AABB
 			Node& newNode = nodes.back();
-			newNode.aabb = CornerAABB(nodes[nodeIdx_].aabb, i);
+			newNode.aabb  = CornerAABB(nodes[nodeIdx_].aabb, i);
 			newNode.depth = nodes[nodeIdx_].depth + 1;
 		}
 	}
@@ -1006,7 +1008,7 @@ namespace SDF
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
 		}
 		fIntegral *= (aabb_.volume() / nSamples);
-		fIntegral = std::abs<f64>(fIntegral);
+		fIntegral  = std::abs<f64>(fIntegral);
 
 		// Calc weighting and then clamp to [0, 1]
 		const f64 k = std::pow(1.0 - fIntegral / (V * d), config.nearnessWeighting.strength);
@@ -1028,7 +1030,7 @@ namespace SDF
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
 		}
 		fIntegral *= (aabb_.volume() / nSamples);
-		fIntegral = std::abs<f64>(fIntegral);
+		fIntegral  = std::abs<f64>(fIntegral);
 
 		// Calc weighting
 		return std::exp(-1.0 * config.nearnessWeighting.strength * fIntegral / (V * d));
@@ -1043,14 +1045,14 @@ namespace SDF
 		const Node& nodeB = nodes[nodeIdxB_];
 
 		// Determine the shared face and integration constants
-		const Eigen::AlignedBox3f sharedFace = Eigen::AlignedBox3f(nodeA.aabb).clamp(nodeB.aabb);
-		const Eigen::Vector3d sharedFaceScale = sharedFace.sizes().cast<f64>() * 0.5;
+		const Eigen::AlignedBox3f sharedFace   = Eigen::AlignedBox3f(nodeA.aabb).clamp(nodeB.aabb);
+		const Eigen::Vector3d sharedFaceScale  = sharedFace.sizes().cast<f64>() * 0.5;
 		const Eigen::Vector3d sharedFaceCentre = sharedFace.center().cast<f64>();
 
 		// Determine GQ steps to perform
 		const usize maxDegree = std::max<usize>(nodeA.basis.degree, nodeB.basis.degree);
-		const usize GQStart = SumToN[maxDegree];
-		const usize GQEnd = SumToN[maxDegree + 1];
+		const usize GQStart   = SumToN[maxDegree];
+		const usize GQEnd     = SumToN[maxDegree + 1];
 
 		// Determine shared face scale
 		const usize depthDiff = nodeA.depth > nodeB.depth ? (nodeA.depth - nodeB.depth) : (nodeB.depth - nodeA.depth);
@@ -1083,7 +1085,7 @@ namespace SDF
 					{
 						// Determine sample on shared face
 						Eigen::Vector3d aUnitSample;
-						aUnitSample(dim_) = 1.0;
+						aUnitSample(dim_)                = 1.0;
 						aUnitSample(Mod3Lookup[dim_][1]) = LegendreRoots[x];
 						aUnitSample(Mod3Lookup[dim_][2]) = LegendreRoots[y];
 
@@ -1135,12 +1137,12 @@ namespace SDF
 					{
 						// Determine samples on shared face
 						Eigen::Vector3d aUnitSample;
-						aUnitSample(dim_) = 1.0;
+						aUnitSample(dim_)                = 1.0;
 						aUnitSample(Mod3Lookup[dim_][1]) = LegendreRoots[x];
 						aUnitSample(Mod3Lookup[dim_][2]) = LegendreRoots[y];
 
 						Eigen::Vector3d bUnitSample;
-						bUnitSample(dim_) = -1.0;
+						bUnitSample(dim_)                = -1.0;
 						bUnitSample(Mod3Lookup[dim_][1]) = LegendreRoots[x];
 						bUnitSample(Mod3Lookup[dim_][2]) = LegendreRoots[y];
 
@@ -1198,7 +1200,7 @@ namespace SDF
 					{
 						// Determine sample on shared face
 						Eigen::Vector3d bUnitSample;
-						bUnitSample(dim_) = -1.0;
+						bUnitSample(dim_)                = -1.0;
 						bUnitSample(Mod3Lookup[dim_][1]) = LegendreRoots[x];
 						bUnitSample(Mod3Lookup[dim_][2]) = LegendreRoots[y];
 
@@ -1258,10 +1260,10 @@ namespace SDF
 				}
 
 				f64 integral = 1.0;
-				integral *= LpX(BasisIndexValues[i][dim_], 1.0);
-				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
-				integral *= LpX(BasisIndexValues[j][dim_], 1.0);
-				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeA.depth];
+				integral    *= LpX(BasisIndexValues[i][dim_], 1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
+				integral    *= LpX(BasisIndexValues[j][dim_], 1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeA.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
                                                            (StorageIndex)(nodeA.basis.coeffsStart + j), integral));
@@ -1282,10 +1284,10 @@ namespace SDF
 				}
 
 				f64 integral = -1.0;
-				integral *= LpX(BasisIndexValues[i][dim_], 1.0);
-				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
-				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
-				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
+				integral    *= LpX(BasisIndexValues[i][dim_], 1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeA.depth];
+				integral    *= LpX(BasisIndexValues[j][dim_], -1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
                                                            (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
@@ -1308,10 +1310,10 @@ namespace SDF
 				}
 
 				f64 integral = 1.0;
-				integral *= LpX(BasisIndexValues[i][dim_], -1.0);
-				integral *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeB.depth];
-				integral *= LpX(BasisIndexValues[j][dim_], -1.0);
-				integral *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
+				integral    *= LpX(BasisIndexValues[i][dim_], -1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[i][dim_]][nodeB.depth];
+				integral    *= LpX(BasisIndexValues[j][dim_], -1.0);
+				integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + i),
                                                            (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
@@ -1354,8 +1356,8 @@ namespace SDF
 
 	void Octree::FaceProcX(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
 	{
-		const Node& nodeA = nodes[nodeIdxA_];
-		const Node& nodeB = nodes[nodeIdxB_];
+		const Node& nodeA       = nodes[nodeIdxA_];
+		const Node& nodeB       = nodes[nodeIdxB_];
 		const bool aHasChildren = nodeA.childIdx != -1;
 		const bool bHasChildren = nodeB.childIdx != -1;
 
@@ -1386,7 +1388,7 @@ namespace SDF
 			// New job is unique
 			ContinuityThreadPool::Input newJob;
 			newJob.nodeIdxs = std::pair<usize, usize>(nodeIdxA, nodeIdxB);
-			newJob.dim = 0;
+			newJob.dim      = 0;
 			jobQueue_.push(newJob);
 		}
 	}
@@ -1394,8 +1396,8 @@ namespace SDF
 
 	void Octree::FaceProcY(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
 	{
-		const Node& nodeA = nodes[nodeIdxA_];
-		const Node& nodeB = nodes[nodeIdxB_];
+		const Node& nodeA       = nodes[nodeIdxA_];
+		const Node& nodeB       = nodes[nodeIdxB_];
 		const bool aHasChildren = nodeA.childIdx != -1;
 		const bool bHasChildren = nodeB.childIdx != -1;
 
@@ -1426,7 +1428,7 @@ namespace SDF
 			// New job is unique
 			ContinuityThreadPool::Input newJob;
 			newJob.nodeIdxs = std::pair<usize, usize>(nodeIdxA, nodeIdxB);
-			newJob.dim = 1;
+			newJob.dim      = 1;
 			jobQueue_.push(newJob);
 		}
 	}
@@ -1434,8 +1436,8 @@ namespace SDF
 
 	void Octree::FaceProcZ(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
 	{
-		const Node& nodeA = nodes[nodeIdxA_];
-		const Node& nodeB = nodes[nodeIdxB_];
+		const Node& nodeA       = nodes[nodeIdxA_];
+		const Node& nodeB       = nodes[nodeIdxB_];
 		const bool aHasChildren = nodeA.childIdx != -1;
 		const bool bHasChildren = nodeB.childIdx != -1;
 
@@ -1466,7 +1468,7 @@ namespace SDF
 			// New job is unique
 			ContinuityThreadPool::Input newJob;
 			newJob.nodeIdxs = std::pair<usize, usize>(nodeIdxA, nodeIdxB);
-			newJob.dim = 2;
+			newJob.dim      = 2;
 			jobQueue_.push(newJob);
 		}
 	}
@@ -1524,12 +1526,12 @@ namespace SDF
 	{
 		// Create structs
 		ContinuityThreadPool::InitialData threadData;
-		threadData.config = config;
-		threadData.inputQueue = new (std::queue<ContinuityThreadPool::Input>);
+		threadData.config          = config;
+		threadData.inputQueue      = new (std::queue<ContinuityThreadPool::Input>);
 		threadData.inputQueueMutex = new (std::mutex);
-		threadData.shutdownAtom = new (std::atomic<bool>);
-		threadData.shutdownAtom->store(false);
-		threadData.matTriplets = new std::vector<Eigen::Triplet<f64>>[config.threadCount];
+		threadData.shutdownAtom    = new (std::atomic<bool>);
+		threadData.matTriplets     = new std::vector<Eigen::Triplet<f64>>[config.threadCount];
+        threadData.shutdownAtom->store(false);
 
 		// Go through octree and allocate jobs to threads. Do this before threads are up to avoid pointless locking/unlocking
 		for (usize i = 0; i < nodes.size(); ++i)
@@ -1605,7 +1607,9 @@ namespace SDF
 		Eigen::setNbThreads((i32)config.threadCount);
 
 		// Solve system and copy new coeffs over
-		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper, Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);
+		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper,
+        Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);
+
 		extSolver.setTolerance(EPSILON_F32);
 		const Eigen::VectorXd newCoeffs = extSolver.solveWithGuess(oldCoeffs, oldCoeffs);
 		memcpy(coeffStore, newCoeffs.data(), sizeof(f64) * nCoeffs_);

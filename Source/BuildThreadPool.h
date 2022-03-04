@@ -23,7 +23,7 @@ namespace SDF
 	public:
 		struct Input
 		{
-			Node node;
+			Node                  node;
 			std::pair<usize, f64> nodeIdxAndErr;
 		};
 
@@ -41,8 +41,8 @@ namespace SDF
 			u8 childIdx;
 
 			usize nodeIdx;
-			f64 initialErr;
-			f64 newErr;
+			f64   initialErr;
+			f64   newErr;
 		};
 
 		struct InitialData
@@ -52,10 +52,10 @@ namespace SDF
 			std::atomic<bool>* shutdownAtom;
 
 			std::queue<Input>* inputQueue;
-			std::mutex* inputQueueMutex;
+			std::mutex*        inputQueueMutex;
 
 			std::queue<Output>* outputQueue;
-			std::mutex* outputQueueMutex;
+			std::mutex*         outputQueueMutex;
 		};
 
 		BuildThreadPool();

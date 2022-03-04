@@ -16,6 +16,7 @@ namespace SDF
 
 	void UnitTests::Run()
 	{
+        usize testsPassed = 0;
 		for (usize i = 0; i < Test::Num; ++i)
 		{
 			bool testPassed = false;
@@ -52,13 +53,24 @@ namespace SDF
 
 			if (testPassed)
 			{
-				printf("\n%sPassed", TestStrings[i]);
+				printf("%sPassed\n\n", TestStrings[i]);
 			}
 			else
 			{
-				printf("\n%sFailed", TestStrings[i]);
+				printf("%sFailed\n\n", TestStrings[i]);
 			}
+
+            testsPassed += testPassed;
 		}
+
+        if (testsPassed == Test::Num)
+        {
+            printf("All tests passed!");
+        }
+        else
+        {
+            printf("Some tests failed!");
+        }
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
 	}
@@ -72,11 +84,11 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold = pow(10, -10);
-		hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
+		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
 		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce = false;
-        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+		hpConfig.continuity.enforce         = false;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		Octree hpOctree;
 		hpOctree.Create(hpConfig, SphereFunc);
@@ -85,7 +97,7 @@ namespace SDF
 		for (usize i = 0; i < 1000000; ++i)
 		{
 			const Eigen::Vector3d sample(box.sample());
-			const f64 octS = hpOctree.Query(sample);
+			const f64 octS  = hpOctree.Query(sample);
 			const f64 trueS = SphereFunc(sample);
 
 			if (abs(octS - trueS) > 0.01)
@@ -106,12 +118,12 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold = pow(10, -10);
-		hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
+		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
 		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce = true;
-		hpConfig.continuity.strength = 8.0;
-        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+		hpConfig.continuity.enforce         = true;
+		hpConfig.continuity.strength        = 8.0;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		Octree hpOctree;
 		hpOctree.Create(hpConfig, SphereFunc);
@@ -120,7 +132,7 @@ namespace SDF
 		for (usize i = 0; i < 1000000; ++i)
 		{
 			const Eigen::Vector3d sample(box.sample());
-			const f64 octS = hpOctree.Query(sample);
+			const f64 octS  = hpOctree.Query(sample);
 			const f64 trueS = SphereFunc(sample);
 
 			if (abs(octS - trueS) > 0.01)
@@ -141,12 +153,12 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold = pow(10, -10);
-		hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
+		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
 		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce = true;
-		hpConfig.continuity.strength = 8.0;
-        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+		hpConfig.continuity.enforce         = true;
+		hpConfig.continuity.strength        = 8.0;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
 		MemoryBlock hpBlock;
 		{
@@ -162,7 +174,7 @@ namespace SDF
 		for (usize i = 0; i < 1000000; ++i)
 		{
 			const Eigen::Vector3d sample(box.sample());
-			const f64 octS = hpOctree.Query(sample);
+			const f64 octS  = hpOctree.Query(sample);
 			const f64 trueS = SphereFunc(sample);
 
 			if (abs(octS - trueS) > 0.01)
@@ -183,11 +195,11 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold = pow(10, -10);
-        hpConfig.nearnessWeighting.type = Config::NearnessWeighting::Type::Exponential;
+        hpConfig.targetErrorThreshold       = pow(10, -10);
+        hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
         hpConfig.nearnessWeighting.strength = 3.0;
-        hpConfig.continuity.enforce = false;
-        hpConfig.threadCount = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+        hpConfig.continuity.enforce         = false;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
         Octree hpOctree;
         hpOctree.Create(hpConfig, SphereFunc);
@@ -198,7 +210,7 @@ namespace SDF
         for (usize i = 0; i < 1000000; ++i)
         {
             const Eigen::Vector3d sample(box.sample());
-            const f64 octS = otherOctree.Query(sample);
+            const f64 octS  = otherOctree.Query(sample);
             const f64 trueS = SphereFunc(sample);
 
             if (abs(octS - trueS) > 0.01)
@@ -212,7 +224,7 @@ namespace SDF
         for (usize i = 0; i < 1000000; ++i)
         {
             const Eigen::Vector3d sample(box.sample());
-            const f64 octS = otherOctree.Query(sample);
+            const f64 octS  = otherOctree.Query(sample);
             const f64 trueS = SphereFunc(sample);
 
             if (abs(octS - trueS) > 0.01)

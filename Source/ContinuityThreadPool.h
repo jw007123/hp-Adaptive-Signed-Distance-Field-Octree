@@ -23,7 +23,7 @@ namespace SDF
 		struct Input
 		{
 			std::pair<usize, usize> nodeIdxs;
-			u8 dim;
+			u8                      dim;
 		};
 
 		struct InitialData
@@ -33,7 +33,7 @@ namespace SDF
 			std::atomic<bool>* shutdownAtom;
 
 			std::queue<Input>* inputQueue;
-			std::mutex* inputQueueMutex;
+			std::mutex*        inputQueueMutex;
 
 			std::vector<Eigen::Triplet<f64>>* matTriplets;
 		};
