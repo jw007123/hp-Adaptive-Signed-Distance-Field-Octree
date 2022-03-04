@@ -1,6 +1,6 @@
 # hp-Adaptive Signed Distance Fields
 A multi-threaded implementation of [An hp-Adaptive Discretization Algorithm for
-Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/papers/2017-TVCG-HPDistanceFields.pdf). Through an octree, the library generates an approximation of an arbitrary SDF defined over the unit cube. Parameters controlling quality, thread usage and whether to perform a continuity post-process are all fully exposed to the user. At the cost of a small approximation error, query perfomance for relatively complex input SDFs can be improved by orders of magnitude. 
+Signed Distance Field Generation](https://www.animation.rwth-aachen.de/media/papers/2017-TVCG-HPDistanceFields.pdf). Through an octree, the library generates an approximation of any function (and simple operations between such functions) defined over an arbitrary domain. Parameters controlling quality, thread usage and whether to perform a continuity post-process are all fully exposed to the user. At the cost of a small approximation error, query perfomance for relatively complex input SDFs can be improved by orders of magnitude. 
 
 <figure>
     <img src="https://i.imgur.com/HuNFjhh.jpeg"
@@ -21,12 +21,13 @@ All library objects and functions are namespaced within SDF. The API is intentio
   
   // Create config
   SDF::Config config;
-  config.targetErrorThreshold = 0.000001;
-  config.nearnessWeighting.type = SDF::Config::NearnessWeighting::Type::Exponential;
+  config.targetErrorThreshold       = 0.000001;
+  config.nearnessWeighting.type     = SDF::Config::NearnessWeighting::Type::Exponential;
   config.nearnessWeighting.strength = 3.0;
-  config.continuity.enforce = true;
-  config.continuity.strength = 8.0;
-  config.threadCount = 12;
+  config.continuity.enforce         = true;
+  config.continuity.strength        = 8.0;
+  config.threadCount                = 12;
+  config.root                       = Eigen::AlignedBox3f(Eigen::Vector3f(-0.25, -0.25, -0.25), Eigen::Vector3f(0.5, 0.5, 0.5));
   
   // Create tree and pass config and SDF
   SDF::Octree hpOctree;
@@ -81,6 +82,4 @@ To add context to the perfomance figures, all examples were generated on a PC eq
 
 ### Future Improvements
 
-* Add support for basic SDF operations (union, subtract, difference). DONE
-* Allow SDF domain to be some arbritrary cube rather than the unit cube.
 * Bite the bullet and significantly improve the CMake code and test compilation on other platforms (Linux etc).
