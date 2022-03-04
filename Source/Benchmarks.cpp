@@ -47,6 +47,12 @@ namespace SDF
                     break;
                 }
 
+                case Benchmark::SDFOperations:
+                {
+                    timeDiff = BenchmarkOctreeSDFOperations();
+                    break;
+                }
+
                 default:
                     assert(0);
             }
@@ -60,7 +66,7 @@ namespace SDF
     {
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -86,7 +92,7 @@ namespace SDF
     {
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -111,7 +117,7 @@ namespace SDF
 
     f64 Benchmarks::BenchmarkOctreeDistanceQuerying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -144,7 +150,7 @@ namespace SDF
 
     f64 Benchmarks::BenchmarkOctreeNormalQuerying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -169,6 +175,39 @@ namespace SDF
             Eigen::Vector3d octGrad;
             const f64 octS = hpOctree.QueryWithGradient(sample, octGrad);
         }
+
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
+
+        return timeDiff.count();
+    }
+
+
+    f64 Benchmarks::BenchmarkOctreeSDFOperations()
+    {
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        {
+            return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        {
+            return (pt_ + Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        Config hpConfig;
+        hpConfig.targetErrorThreshold       = pow(10, -9);
+        hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
+        hpConfig.nearnessWeighting.strength = 3.0;
+        hpConfig.continuity.enforce         = false;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+
+        Octree hpOctree;
+        hpOctree.Create(hpConfig, SphereFunc);
+
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+
+        hpOctree.UnionSDF(OtherSphereFunc);
 
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;

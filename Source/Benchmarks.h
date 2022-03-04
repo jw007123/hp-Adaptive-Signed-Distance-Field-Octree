@@ -19,6 +19,7 @@ namespace SDF
             Continuity    = 1,
             QueryDistance = 2,
             QueryNormal   = 3,
+            SDFOperations = 4,
             Num
         };
 
@@ -27,7 +28,8 @@ namespace SDF
             "Octree Creation",
             "Octree Continuity",
             "Octree Distance Querying",
-            "Octree Normal Querying"
+            "Octree Normal Querying",
+            "Octree SDF Operations"
         };
 
         f64 BenchmarkOctreeCreation();
@@ -37,5 +39,7 @@ namespace SDF
         f64 BenchmarkOctreeDistanceQuerying();
 
         f64 BenchmarkOctreeNormalQuerying();
+
+        f64 BenchmarkOctreeSDFOperations();
     };
 }

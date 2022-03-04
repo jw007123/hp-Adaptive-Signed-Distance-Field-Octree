@@ -47,6 +47,12 @@ namespace SDF
                     break;
                 }
 
+                case Test::SDFOperations:
+                {
+                    testPassed = TestOctreeSDFOperations();
+                    break;
+                }
+
 				default:
 					assert(0);
 			}
@@ -78,7 +84,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeCreation()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -112,7 +118,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeContinuity()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -147,7 +153,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeSerialisation()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -189,7 +195,7 @@ namespace SDF
 
     bool UnitTests::TestOctreeCopying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> double
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -230,6 +236,86 @@ namespace SDF
             if (abs(octS - trueS) > 0.01)
             {
                 return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    bool UnitTests::TestOctreeSDFOperations()
+    {
+        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        {
+            return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        {
+            return (pt_ + Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+        };
+
+        Config hpConfig;
+        hpConfig.targetErrorThreshold       = pow(10, -9);
+        hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
+        hpConfig.nearnessWeighting.strength = 3.0;
+        hpConfig.continuity.enforce         = false;
+        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+
+        {
+            Octree hpOctree;
+            hpOctree.Create(hpConfig, SphereFunc);
+            hpOctree.UnionSDF(OtherSphereFunc);
+
+            const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+            for (usize i = 0; i < 1000000; ++i)
+            {
+                const Eigen::Vector3d sample(box.sample());
+                const f64 octS  = hpOctree.Query(sample);
+                const f64 trueS = std::min(SphereFunc(sample), OtherSphereFunc(sample));
+
+                if (abs(octS - trueS) > 0.01)
+                {
+                    return false;
+                }
+            }
+        }
+       
+        {
+            Octree hpOctree;
+            hpOctree.Create(hpConfig, SphereFunc);
+            hpOctree.IntersectSDF(OtherSphereFunc);
+
+            const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+            for (usize i = 0; i < 1000000; ++i)
+            {
+                const Eigen::Vector3d sample(box.sample());
+                const f64 octS  = hpOctree.Query(sample);
+                const f64 trueS = std::max(SphereFunc(sample), OtherSphereFunc(sample));
+
+                if (abs(octS - trueS) > 0.01)
+                {
+                    return false;
+                }
+            }
+        }
+
+        {
+            Octree hpOctree;
+            hpOctree.Create(hpConfig, SphereFunc);
+            hpOctree.SubtractSDF(OtherSphereFunc);
+
+            const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+            for (usize i = 0; i < 1000000; ++i)
+            {
+                const Eigen::Vector3d sample(box.sample());
+                const f64 octS  = hpOctree.Query(sample);
+                const f64 trueS = std::max(SphereFunc(sample) * -1.0, OtherSphereFunc(sample));
+
+                if (abs(octS - trueS) > 0.01)
+                {
+                    return false;
+                }
             }
         }
 

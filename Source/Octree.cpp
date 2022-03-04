@@ -65,6 +65,16 @@ namespace SDF
     }
 
 
+    Octree::Octree(Octree&& other_)
+    {
+        config     = other_.config;
+        nodes      = std::move(other_.nodes);
+        coeffStore = other_.coeffStore;
+
+        other_.coeffStore = nullptr;
+    }
+
+
     Octree& Octree::operator=(Octree&& other_)
     {
         Clear();
@@ -308,6 +318,49 @@ namespace SDF
 	}
 
 
+    void Octree::UnionSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_)
+    {
+        /*
+            Note: Requires keeping old tree around until operation has completed, but a lot simpler
+            than doing operation over each leaf node and then recursively merging redundant leaves.
+        */
+        Octree oldTree = std::move(*this);
+        
+        auto UnionF = [&oldTree, F_](const Eigen::Vector3d& pt_) -> f64
+        {
+            return std::min(oldTree.Query(pt_), F_(pt_));
+        };
+
+        Create(oldTree.config, UnionF);
+    }
+
+
+    void Octree::SubtractSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_)
+    {
+        Octree oldTree = std::move(*this);
+
+        auto SubtractF = [&oldTree, F_](const Eigen::Vector3d& pt_) -> f64
+        {
+            return std::max(oldTree.Query(pt_) * -1.0, F_(pt_));
+        };
+
+        Create(oldTree.config, SubtractF);
+    }
+
+
+    void Octree::IntersectSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_)
+    {
+        Octree oldTree = std::move(*this);
+
+        auto IntersectSDF = [&oldTree, F_](const Eigen::Vector3d& pt_) -> f64
+        {
+            return std::max(oldTree.Query(pt_), F_(pt_));
+        };
+
+        Create(oldTree.config, IntersectSDF);
+    }
+
+
 	void Octree::FromMemoryBlock(MemoryBlock octBlock_)
 	{
 		assert(octBlock_.size && octBlock_.ptr);
@@ -502,7 +555,7 @@ namespace SDF
 	}
 
 
-	f64 Octree::Query(const Eigen::Vector3d& pt_)
+	f64 Octree::Query(const Eigen::Vector3d& pt_) const
 	{
 		// Not in volume
 		if (!nodes[0].aabb.contains(pt_.cast<f32>()))
@@ -542,7 +595,7 @@ namespace SDF
 	}
 
 
-    bool Octree::QueryRay(const Ray& ray_, const f64 tMax_, f64& t_)
+    bool Octree::QueryRay(const Ray& ray_, const f64 tMax_, f64& t_) const
     {
         constexpr usize MAX_STEPS = 200;
         constexpr f64 eps         = 0.0001;
@@ -583,7 +636,7 @@ namespace SDF
     }
 	
 	
-	f64 Octree::QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitGradient_)
+	f64 Octree::QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitGradient_) const
 	{
 		// Not in volume
 		if (!nodes[0].aabb.contains(pt_.cast<f32>()))
@@ -672,7 +725,7 @@ namespace SDF
 	}
 
 
-	f64 Octree::FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_)
+	f64 Octree::FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_) const
 	{
 		// Move pt_ to unit cube
 		const Eigen::Vector3d unitPt = (pt_ - aabb_.center().cast<f64>()) * (2 << depth_);
@@ -717,7 +770,7 @@ namespace SDF
 	}
 	
 	
-	f64 Octree::FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitGradient_)
+	f64 Octree::FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitGradient_) const
 	{
 		// Move pt_ to unit cube
 		const Eigen::Vector3d unitPt = (pt_ - aabb_.center().cast<f64>()) * (2 << depth_);
@@ -967,8 +1020,8 @@ namespace SDF
 	{
 		// Obtain mem and set size
 		const usize nSamples = 2048;
-		f64* sdfVals = (f64*)malloc(sizeof(f64) * nSamples * nSamples);
-		u8* imageBytes = (u8*)malloc(nSamples * nSamples * 3);
+		f64* sdfVals         = (f64*)malloc(sizeof(f64) * nSamples * nSamples);
+		u8* imageBytes       = (u8*)malloc(nSamples * nSamples * 3);
 
 		// Fill in pixels
 		std::pair<f64, f64> minMaxPosVals = { std::numeric_limits<f64>::max(), 0.0 };
@@ -979,20 +1032,20 @@ namespace SDF
 			{
 				// Generate sample
 				Eigen::Vector3d sampleLoc = nodes[0].aabb.min().cast<f64>();
-				sampleLoc.x() += ((j + 0.5) / nSamples);
-				sampleLoc.y() += ((i + 0.5) / nSamples);
-				sampleLoc.z() = c_;
+				sampleLoc.x()            += ((j + 0.5) / nSamples);
+				sampleLoc.y()            += ((i + 0.5) / nSamples);
+				sampleLoc.z()             = c_;
 
 				// Update 
 				const f64 sdfVal = Query(sampleLoc);
 				if (sdfVal > EPSILON_F32)
 				{
-					minMaxPosVals.first = std::min<f64>(sdfVal, minMaxPosVals.first);
+					minMaxPosVals.first  = std::min<f64>(sdfVal, minMaxPosVals.first);
 					minMaxPosVals.second = std::max<f64>(sdfVal, minMaxPosVals.second);
 				}
 				else
 				{
-					minMaxNegVals.first = std::min<f64>(sdfVal, minMaxNegVals.first);
+					minMaxNegVals.first  = std::min<f64>(sdfVal, minMaxNegVals.first);
 					minMaxNegVals.second = std::max<f64>(sdfVal, minMaxNegVals.second);
 				}
 
@@ -1010,7 +1063,7 @@ namespace SDF
 				{
 					const u8 scaledByte = (u8)(255 * (unscaledVal - minMaxPosVals.second) / (minMaxPosVals.first - minMaxPosVals.second));
 
-					imageBytes[3 * (i * nSamples + j)] = 0;
+					imageBytes[3 * (i * nSamples + j)]     = 0;
 					imageBytes[3 * (i * nSamples + j) + 1] = scaledByte;
 					imageBytes[3 * (i * nSamples + j) + 2] = 0;
 				}
@@ -1018,7 +1071,7 @@ namespace SDF
 				{
 					const u8 scaledByte = (u8)(255 * (unscaledVal - minMaxNegVals.first) / (minMaxNegVals.second - minMaxNegVals.first));
 
-					imageBytes[3 * (i * nSamples + j)] = 0;
+					imageBytes[3 * (i * nSamples + j)]     = 0;
 					imageBytes[3 * (i * nSamples + j) + 1] = 0;
 					imageBytes[3 * (i * nSamples + j) + 2] = scaledByte;
 				}
@@ -1028,7 +1081,7 @@ namespace SDF
 		// Write to file
 		char fNameWithExt[PATH_MAX];
 		sprintf_s(fNameWithExt, PATH_MAX, "%s.bmp", fName_);
-		bool success = stbi_write_bmp(fNameWithExt, nSamples, nSamples, 3, imageBytes);
+		const bool success = stbi_write_bmp(fNameWithExt, nSamples, nSamples, 3, imageBytes);
 		assert(success);
 
 		// Cleanup
@@ -1613,10 +1666,10 @@ namespace SDF
 		}
 
 		// Cleanup
-		delete (threadData.inputQueue);
-		delete (threadData.inputQueueMutex);
-		delete (threadData.shutdownAtom);
-		delete[](threadData.matTriplets);
+		delete   (threadData.inputQueue);
+		delete   (threadData.inputQueueMutex);
+		delete   (threadData.shutdownAtom);
+		delete[] (threadData.matTriplets);
 	}
 
 

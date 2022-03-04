@@ -37,11 +37,21 @@ namespace SDF
 
 		/// Copying/Moving
         Octree(const Octree& other_);
+        Octree(Octree&& other_);
 		Octree& operator=(const Octree& other_);
 		Octree& operator=(Octree&& other_);
 
 		/// Approximates F_ inside [-0.5f, 0.5f]^3 using the parameters in config_
 		void Create(const Config& config_, std::function<f64(const Eigen::Vector3d& pt_)> F_);
+
+        /// Resultant SDF = Min(oldF, F_)
+        void UnionSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
+
+        /// Resultant SDF = Max(-oldF, F_)
+        void SubtractSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
+
+        /// Resultant SDF = Max(oldF, F_)
+        void IntersectSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
 
 		/// Resets the tree
 		void Clear();
@@ -53,14 +63,14 @@ namespace SDF
 		MemoryBlock ToMemoryBlock();
 
 		/// Returns the approximated distance from F = 0. Negative implies inside the boundary
-		f64 Query(const Eigen::Vector3d& pt_);
+		f64 Query(const Eigen::Vector3d& pt_) const;
 
         /// NOTE: Untested
         /// Returns whether a ray intersected the SDF and the value of the first hit if it does
-        bool QueryRay(const Ray& ray_, const f64 tMax_, f64& t_);
+        bool QueryRay(const Ray& ray_, const f64 tMax_, f64& t_) const;
 
 		/// As with Query, but with an optional unit gradient calculated via CD
-		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_);
+		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_) const;
 
 #if HAS_STB
 		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
@@ -112,10 +122,10 @@ namespace SDF
 		f64 LpX(const usize p_, const f64 x_);
 
 		/// Evaluates (2) using the given basis_ at pt_
-		f64 FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_);
+		f64 FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_) const;
 		
 		/// Same with FApprox but with optimisations to allow efficient gradient computation
-		f64 FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitNormal_);
+		f64 FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitNormal_) const;
 
 		/// Applies (11)
 		f64 CalculatePolyWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize depth_);
