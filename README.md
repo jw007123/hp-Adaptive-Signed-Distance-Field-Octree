@@ -81,4 +81,6 @@ To add context to the perfomance figures, all examples were generated on a PC eq
 
 ### Future Improvements
 
+* Add support for basic SDF operations (union, subtract, difference). DONE
+* Allow SDF domain to be some arbritrary cube rather than the unit cube.
 * Bite the bullet and significantly improve the CMake code and test compilation on other platforms (Linux etc).
