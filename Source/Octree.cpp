@@ -137,7 +137,7 @@ namespace SDF
 
 				// Otherwise, fit polynomial to node
 				const f64 newError = FitPolynomial(nodes[curNodeIdx].basis, nodes[curNodeIdx].aabb, coarseDegree, coarseDepth);
-				totalCoeffError_   += newError;
+				totalCoeffError_  += newError;
 
 				// Add to queue
 				std::pair<usize, f64> newNodeIdxAndErr = { curNodeIdx, newError };
@@ -464,7 +464,7 @@ namespace SDF
 			{
 				if (refineP)
 				{
-					for (usize i = 0; i < 8; ++i)
+					for (u8 i = 0; i < 8; ++i)
 					{
 						free(hBases[i].coeffs);
 					}
@@ -677,15 +677,28 @@ namespace SDF
 		// Move pt_ to unit cube
 		const Eigen::Vector3d unitPt = (pt_ - aabb_.center().cast<f64>()) * (2 << depth_);
 
-		// Create lookup table for pt_
-		f64 LpXLookup[BASIS_MAX_DEGREE][3];
-		for (usize i = 0; i < 3; ++i)
-		{
-			for (usize j = 0; j <= basis_.degree; ++j)
-			{
-				LpXLookup[j][i] = LpX(j, unitPt(i)) * NormalisedLengths[j][depth_];
-			}
-		}
+        // Create lookup table for pt_
+        f64 LpXLookup[BASIS_MAX_DEGREE][3];
+        for (usize i = 0; i < 3; ++i)
+        {
+            // Constant
+            LpXLookup[0][i] = NormalisedLengths[0][depth_];
+
+            // Initial values for recurrence
+            f64 LjMinus2 = 0.0;
+            f64 LjMinus1 = 1.0;
+            f64 Lj       = 1.0;
+
+            // Determine remaining values
+            for (usize j = 1; j <= basis_.degree; ++j)
+            {
+                Lj       = LegendreCoefficent[j][0] * unitPt(i) * LjMinus1 - LegendreCoefficent[j][1] * LjMinus2;
+                LjMinus2 = LjMinus1;
+                LjMinus1 = Lj;
+
+                LpXLookup[j][i] = Lj * NormalisedLengths[j][depth_];
+            }
+        }
 
 		// Sum up basis coeffs
 		f64 fApprox = 0.0;
@@ -712,17 +725,48 @@ namespace SDF
 		// CD eps
 		const f64 eps = 0.0001;
 
-		// Create lookup table for pt_
-		f64 LpXLookup[BASIS_MAX_DEGREE][3][3];
-		for (usize i = 0; i < 3; ++i)
-		{
-			for (usize j = 0; j <= basis_.degree; ++j)
-			{
-				LpXLookup[j][i][0] = LpX(j, unitPt(i)) * NormalisedLengths[j][depth_];
-				LpXLookup[j][i][1] = LpX(j, unitPt(i) + eps) * NormalisedLengths[j][depth_];
-				LpXLookup[j][i][2] = LpX(j, unitPt(i) - eps) * NormalisedLengths[j][depth_];
-			}
-		}
+        // Create lookup table for pt_
+        f64 LpXLookup[BASIS_MAX_DEGREE][3][3];
+        for (usize i = 0; i < 3; ++i)
+        {
+            // Constants
+            LpXLookup[0][i][0] = NormalisedLengths[0][depth_];
+            LpXLookup[0][i][1] = NormalisedLengths[0][depth_];
+            LpXLookup[0][i][2] = NormalisedLengths[0][depth_];
+
+            // Initial values for recurrences
+            f64 Lj0Minus2 = 0.0;
+            f64 Lj0Minus1 = 1.0;
+            f64 Lj0       = 1.0;
+
+            f64 Lj1Minus2 = 0.0;
+            f64 Lj1Minus1 = 1.0;
+            f64 Lj1       = 1.0;
+
+            f64 Lj2Minus2 = 0.0;
+            f64 Lj2Minus1 = 1.0;
+            f64 Lj2       = 1.0;
+
+            // Determine remaining values
+            for (usize j = 1; j <= basis_.degree; ++j)
+            {
+                Lj0       = LegendreCoefficent[j][0] * unitPt(i) * Lj0Minus1 - LegendreCoefficent[j][1] * Lj0Minus2;
+                Lj0Minus2 = Lj0Minus1;
+                Lj0Minus1 = Lj0;
+
+                Lj1       = LegendreCoefficent[j][0] * (unitPt(i) + eps) * Lj1Minus1 - LegendreCoefficent[j][1] * Lj1Minus2;
+                Lj1Minus2 = Lj1Minus1;
+                Lj1Minus1 = Lj1;
+
+                Lj2       = LegendreCoefficent[j][0] * (unitPt(i) - eps) * Lj2Minus1 - LegendreCoefficent[j][1] * Lj2Minus2;
+                Lj2Minus2 = Lj2Minus1;
+                Lj2Minus1 = Lj2;
+
+                LpXLookup[j][i][0] = Lj0 * NormalisedLengths[j][depth_];
+                LpXLookup[j][i][1] = Lj1 * NormalisedLengths[j][depth_];
+                LpXLookup[j][i][2] = Lj2 * NormalisedLengths[j][depth_];
+            }
+        }
 
 		// Calculate gradient
 		for (usize k = 0; k < 3; ++k)
@@ -762,7 +806,7 @@ namespace SDF
 		// Set initial values for recurrence
 		f64 LiMinus2 = 0.0;
 		f64 LiMinus1 = 1.0;
-		f64 Li = 1.0;
+		f64 Li       = 1.0;
 
 		// Apply procedure p_ times
 		for (usize i = 1; i <= p_; ++i)

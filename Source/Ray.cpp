@@ -8,9 +8,9 @@ namespace SDF
         direction = direction_;
 
         invDirection = direction_.cwiseInverse();
-        sign.x() = invDirection.x() < 0.0;
-        sign.y() = invDirection.y() < 0.0;
-        sign.z() = invDirection.z() < 0.0;
+        sign.x()     = invDirection.x() < 0.0;
+        sign.y()     = invDirection.y() < 0.0;
+        sign.z()     = invDirection.z() < 0.0;
     }
 
 

@@ -10,15 +10,15 @@ namespace SDF
 		UnitTests();
 		~UnitTests();
 
-		void Run();
+		bool Run();
 
 	private:
 		enum Test : u8
 		{
-			Creation = 0,
-			Continuity = 1,
+			Creation      = 0,
+			Continuity    = 1,
 			Serialisation = 2,
-            Copying = 3,
+            Copying       = 3,
 			Num
 		};
 

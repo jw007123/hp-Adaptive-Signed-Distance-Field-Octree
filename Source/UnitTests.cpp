@@ -14,7 +14,7 @@ namespace SDF
 	}
 
 
-	void UnitTests::Run()
+	bool UnitTests::Run()
 	{
         usize testsPassed = 0;
 		for (usize i = 0; i < Test::Num; ++i)
@@ -72,7 +72,7 @@ namespace SDF
             printf("Some tests failed!");
         }
 
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        return (testsPassed == Test::Num);
 	}
 
 
