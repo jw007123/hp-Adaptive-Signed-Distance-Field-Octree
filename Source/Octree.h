@@ -92,10 +92,13 @@ namespace SDF
 		std::priority_queue<std::pair<usize, f64>, std::vector<std::pair<usize, f64>>, PriorityQueuePredicate> nodeQueue;
 
 		std::map<std::pair<usize, usize>, bool> procMap;
-		Config config;
 		std::function<f64(const Eigen::Vector3d& pt_)> F;
 		f64* coeffStore;
 		std::vector<Node> nodes;
+
+        Config          config;
+        Eigen::Vector3d configRootCentre;
+        Eigen::Vector3d configRootInvSizes;
 
 		/// Estimates the improvement we'd obtain by subviding the node
 		f64 EstimateHImprovement(const BuildThreadPool::Input& inputData_, Node::Basis* hBases_, f64* hBasesErrors_);

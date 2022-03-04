@@ -20,8 +20,10 @@ namespace SDF
     Octree::Octree(const Octree& other_)
     {
         // Easy to copy
-        config = other_.config;
-        nodes  = other_.nodes;
+        config             = other_.config;
+        nodes              = other_.nodes;
+        configRootCentre   = other_.configRootCentre;
+        configRootInvSizes = other_.configRootInvSizes;
 
         // Count coeffs
         usize nCoeffs = 0;
@@ -44,8 +46,10 @@ namespace SDF
         Clear();
 
         // Easy to copy
-        config = other_.config;
-        nodes  = other_.nodes;
+        config             = other_.config;
+        nodes              = other_.nodes;
+        configRootCentre   = other_.configRootCentre;
+        configRootInvSizes = other_.configRootInvSizes;
         
         // Count coeffs
         usize nCoeffs = 0;
@@ -71,6 +75,9 @@ namespace SDF
         nodes      = std::move(other_.nodes);
         coeffStore = other_.coeffStore;
 
+        configRootCentre   = other_.configRootCentre;
+        configRootInvSizes = other_.configRootInvSizes;
+
         other_.coeffStore = nullptr;
     }
 
@@ -82,6 +89,9 @@ namespace SDF
         config     = other_.config;
         nodes      = std::move(other_.nodes);
         coeffStore = other_.coeffStore;
+
+        configRootCentre   = other_.configRootCentre;
+        configRootInvSizes = other_.configRootInvSizes;
 
         other_.coeffStore = nullptr;
 
@@ -262,7 +272,7 @@ namespace SDF
 					nodes[newNodeIdx].basis = newOutput.nodeBasis;
 
 					// Place node back into nodes queue
-					std::pair<usize, f64> newNodeIdxAndErr = { newNodeIdx,  newOutput.newErr };
+					const std::pair<usize, f64> newNodeIdxAndErr = { newNodeIdx,  newOutput.newErr };
 					nodeQueue.push(newNodeIdxAndErr);
 				}
 			}
@@ -287,7 +297,15 @@ namespace SDF
 		// Sanity
 		config_.IsValid();
 		config = config_;
-		F      = F_;
+
+        // Setup internal domain to be over unit cube
+        configRootCentre                 = config.root.center().cast<f64>();
+        configRootInvSizes               = config.root.sizes().cwiseInverse().cast<f64>();
+        const Eigen::Vector3d rootBounds = config.root.sizes().cast<f64>();
+        F = [F_, centre = configRootCentre, rootBounds](const Eigen::Vector3d& pt_) -> f64
+        {
+            return F_(pt_.cwiseProduct(rootBounds) + centre);
+        };
 		
 		// Create root and then obtain a coarse F approximation
 		f64 totalCoeffError = 0.0;
@@ -380,6 +398,10 @@ namespace SDF
 		memcpy(nodes.data(), (u8*)octBlock_.ptr + sizeof(usize) + sizeof(f64) * nCoeffs + sizeof(usize), sizeof(Node) * nNodes);
 
 		config = *(Config*)((u8*)octBlock_.ptr + (sizeof(usize) + sizeof(f64) * nCoeffs + sizeof(usize) + sizeof(Node) * nNodes));
+
+        // Recalculate
+        configRootCentre   = config.root.center().cast<f64>();
+        configRootInvSizes = config.root.sizes().cwiseInverse().cast<f64>();
 	}
 
 
@@ -562,8 +584,11 @@ namespace SDF
 
 	f64 Octree::Query(const Eigen::Vector3d& pt_) const
 	{
+        // Move to unit cube
+        const Eigen::Vector3d pt = (pt_ - configRootCentre).cwiseProduct(configRootInvSizes);
+
 		// Not in volume
-		if (!nodes[0].aabb.contains(pt_.cast<f32>()))
+		if (!nodes[0].aabb.contains(pt.cast<f32>()))
 		{
 			return std::numeric_limits<f64>::max();
 		}
@@ -576,9 +601,9 @@ namespace SDF
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
 			const f32 curNodeAABBHalf      = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
-			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
-			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
-			const usize zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
+			const usize xIdx = (pt.x() >= (aabbMin.x() + curNodeAABBHalf));
+			const usize yIdx = (pt.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
+			const usize zIdx = (pt.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
@@ -589,7 +614,7 @@ namespace SDF
 				basis.degree = curChild.basis.degree;
 				basis.coeffs = coeffStore + curChild.basis.coeffsStart;
 
-				return FApprox(basis, curChild.aabb, pt_, curChild.depth);
+				return FApprox(basis, curChild.aabb, pt, curChild.depth);
 			}
 			else
 			{
@@ -606,11 +631,14 @@ namespace SDF
         constexpr f64 eps         = 0.0001;
         constexpr f64 minStep     = 0.0001;
 
-        Eigen::Vector3d intMin = ray_.origin;
+        // Move to unit cube
+        Ray ray((ray_.origin - configRootCentre).cwiseProduct(configRootInvSizes), ray_.direction);
+
+        Eigen::Vector3d intMin = ray.origin;
         Eigen::Vector3d intMax;
-        
+
         // Either misses root or we find first intersection point and clamp to that
-        if (!nodes[0].aabb.contains(ray_.origin.cast<f32>()) && !ray_.IntersectAABB(nodes[0].aabb.cast<f64>(), intMin, intMax))
+        if (!nodes[0].aabb.contains(ray.origin.cast<f32>()) && !ray.IntersectAABB(nodes[0].aabb.cast<f64>(), intMin, intMax))
         {
             return false;
         }
@@ -619,7 +647,7 @@ namespace SDF
 
         for (usize i = 0; i < MAX_STEPS; ++i)
         {
-            const f64 v = Query(intMin + d * ray_.direction);
+            const f64 v = Query(intMin + d * ray.direction);
 
             if (v < eps)
             {
@@ -643,8 +671,11 @@ namespace SDF
 	
 	f64 Octree::QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitGradient_) const
 	{
+        // Move to unit cube
+        const Eigen::Vector3d pt = (pt_ - configRootCentre).cwiseProduct(configRootInvSizes);
+
 		// Not in volume
-		if (!nodes[0].aabb.contains(pt_.cast<f32>()))
+		if (!nodes[0].aabb.contains(pt.cast<f32>()))
 		{
 			return std::numeric_limits<f64>::max();
 		}
@@ -657,9 +688,9 @@ namespace SDF
 			const Eigen::Vector3f& aabbMax = nodes[curNodeIdx].aabb.max();
 			const f32 curNodeAABBHalf      = (aabbMax.x() - aabbMin.x()) * 0.5f;
 
-			const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalf));
-			const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
-			const usize zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
+			const usize xIdx = (pt.x() >= (aabbMin.x() + curNodeAABBHalf));
+			const usize yIdx = (pt.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
+			const usize zIdx = (pt.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
 			const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
@@ -670,7 +701,7 @@ namespace SDF
 				basis.degree = curChild.basis.degree;
 				basis.coeffs = coeffStore + curChild.basis.coeffsStart;
 
-				return FApproxWithGradient(basis, curChild.aabb, pt_, curChild.depth, unitGradient_);
+				return FApproxWithGradient(basis, curChild.aabb, pt, curChild.depth, unitGradient_);
 			}
 			else
 			{
