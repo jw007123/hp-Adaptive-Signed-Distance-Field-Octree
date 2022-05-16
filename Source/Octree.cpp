@@ -1140,7 +1140,7 @@ namespace SDF
 		{
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
 		}
-		fIntegral *= (aabb_.volume() / nSamples);
+		fIntegral /= nSamples;
 		fIntegral  = std::abs<f64>(fIntegral);
 
 		// Calc weighting and then clamp to [0, 1]
@@ -1162,7 +1162,7 @@ namespace SDF
 		{
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
 		}
-		fIntegral *= (aabb_.volume() / nSamples);
+		fIntegral /= nSamples;
 		fIntegral  = std::abs<f64>(fIntegral);
 
 		// Calc weighting
