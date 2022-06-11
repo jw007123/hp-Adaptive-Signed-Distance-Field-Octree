@@ -21,7 +21,6 @@ namespace SDF
             Copying        = 3,
             SDFOperations  = 4,
             CustomDomains  = 5,
-            NormalQuerying = 6,
 			Num
 		};
 
@@ -33,7 +32,6 @@ namespace SDF
             "Octree Copying: ",
             "Octree SDF Operations: ",
             "Octree Custom Domains: ",
-            "Octree Normal Querying: "
 		};
 
 		bool TestOctreeCreation();
@@ -47,7 +45,5 @@ namespace SDF
         bool TestOctreeSDFOperations();
 
         bool TestOctreeCustomDomains();
-
-        bool TestOctreeNormalQuerying();
 	};
 }
