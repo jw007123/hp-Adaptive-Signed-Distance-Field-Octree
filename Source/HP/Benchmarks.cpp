@@ -66,7 +66,7 @@ namespace SDF
     {
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -92,7 +92,7 @@ namespace SDF
     {
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -117,7 +117,7 @@ namespace SDF
 
     f64 Benchmarks::BenchmarkOctreeDistanceQuerying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -150,7 +150,7 @@ namespace SDF
 
     f64 Benchmarks::BenchmarkOctreeNormalQuerying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -185,12 +185,12 @@ namespace SDF
 
     f64 Benchmarks::BenchmarkOctreeSDFOperations()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
 
-        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ + Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };

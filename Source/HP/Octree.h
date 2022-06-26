@@ -4,6 +4,7 @@
 #include <queue>
 #include <functional>
 #include <map>
+#include <iostream>
 
 #include <malloc.h>
 
@@ -11,7 +12,7 @@
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
-#define HAS_STB 0
+#define HAS_STB 1
 #if HAS_STB
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -42,16 +43,16 @@ namespace SDF
 		Octree& operator=(Octree&& other_);
 
 		/// Approximates F_ using the parameters in config_
-		void Create(const Config& config_, std::function<f64(const Eigen::Vector3d& pt_)> F_);
+		void Create(const Config& config_, std::function<f64(const Eigen::Vector3d& pt_, const u32 threadIdx_)> F_);
 
         /// Resultant SDF = Min(oldF, F_)
-        void UnionSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
+        void UnionSDF(std::function<f64(const Eigen::Vector3d& pt_, const u32 threadIdx_)> F_);
 
         /// Resultant SDF = Max(-oldF, F_)
-        void SubtractSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
+        void SubtractSDF(std::function<f64(const Eigen::Vector3d& pt_, const u32 threadIdx_)> F_);
 
         /// Resultant SDF = Max(oldF, F_)
-        void IntersectSDF(std::function<f64(const Eigen::Vector3d& pt_)> F_);
+        void IntersectSDF(std::function<f64(const Eigen::Vector3d& pt_, const u32 threadIdx_)> F_);
 
 		/// Resets the tree
 		void Clear();
@@ -72,98 +73,103 @@ namespace SDF
 		/// As with Query, but with an optional unit gradient calculated via CD
 		f64 QueryWithGradient(const Eigen::Vector3d& pt_, Eigen::Vector3d& unitNormal_) const;
 
+        /// Returns the aabb of the root node
+        Eigen::AlignedBox3f GetRootAABB() const;
+
 #if HAS_STB
 		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
-		void OutputFunctionSlice(const char* fName_, const f64 c_);
+		void OutputFunctionSlice(const char* fName_, const f64 c_, const Eigen::AlignedBox3f& viewArea_);
 #endif
 
 	private:
+        static constexpr f64 INITIAL_NODE_ERR = 100.0;
+
 		friend class BuildThreadPool;
 		friend class ContinuityThreadPool;
 
 		/// Predicate for use in the priority queue
 		struct PriorityQueuePredicate
 		{
-			bool operator()(const std::pair<usize, f64>& v1_, const std::pair<usize, f64>& v2_)
+			bool operator()(const std::pair<u32, f64>& v1_, const std::pair<u32, f64>& v2_)
 			{
 				return v1_.second < v2_.second;
 			}
 		};
-		std::priority_queue<std::pair<usize, f64>, std::vector<std::pair<usize, f64>>, PriorityQueuePredicate> nodeQueue;
+		std::priority_queue<std::pair<u32, f64>, std::vector<std::pair<u32, f64>>, PriorityQueuePredicate> nodeQueue;
 
-		std::map<std::pair<usize, usize>, bool> procMap;
-		std::function<f64(const Eigen::Vector3d& pt_)> F;
-		f64* coeffStore;
-		std::vector<Node> nodes;
+		std::map<std::pair<u32, u32>, bool>                                  procMap;
+		std::function<f64(const Eigen::Vector3d& pt_, const u32 threadIdx_)> F;
+		f64*                                                                 coeffStore;
+		std::vector<Node>                                                    nodes;
 
         Config          config;
         Eigen::Vector3d configRootCentre;
         Eigen::Vector3d configRootInvSizes;
 
 		/// Estimates the improvement we'd obtain by subviding the node
-		f64 EstimateHImprovement(const BuildThreadPool::Input& inputData_, Node::Basis* hBases_, f64* hBasesErrors_);
+		f64 EstimateHImprovement(const BuildThreadPool::Input& inputData_, Node::Basis* hBases_, f64* hBasesErrors_, const u32 threadIdx_);
 
 		/// Estimates the improvement we'd obtain by increasing the node's basis degree
-		f64 EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_);
+		f64 EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_, const u32 threadIdx_);
 
 		/// Fits a basis of degree_ to basis_ over the volume aabb_. Returns the error
-		f64 FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u8 degree_, const usize depth_);
+		f64 FitPolynomial(Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u8 degree_, const u32 depth_, const u32 threadIdx_);
 
 		/// Subdivides nodes[nodeIdx_]. Doesn't fit any polynomials to the children
-		void Subdivide(const usize nodeIdx_);
+		void Subdivide(const u32 nodeIdx_);
 
 		/// Returns the ith corner AABB of aabb_
-		Eigen::AlignedBox3f CornerAABB(const Eigen::AlignedBox3f& aabb_, const usize i_);
+		Eigen::AlignedBox3f CornerAABB(const Eigen::AlignedBox3f& aabb_, const u32 i_);
 
 		/// Creates a subdivided root node
 		void CreateRoot();
 
 		/// Manages the threadpool responsible for building the tree
-		void RunBuildThreadPool(f64& totalCoeffError_);
+		void RunBuildThreadPool();
 
 		/// Evaluates (4) for a given p_ and x_
-		f64 LpX(const usize p_, const f64 x_);
+		f64 LpX(const u32 p_, const f64 x_);
 
 		/// Evaluates (2) using the given basis_ at pt_
-		f64 FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_) const;
+		f64 FApprox(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const u32 depth_) const;
 		
 		/// Same with FApprox but with optimisations to allow efficient gradient computation
-		f64 FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const usize depth_, Eigen::Vector3d& unitNormal_) const;
+		f64 FApproxWithGradient(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const Eigen::Vector3d& pt_, const u32 depth_, Eigen::Vector3d& unitNormal_) const;
 
 		/// Applies (11)
-		f64 CalculatePolyWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize depth_);
+		f64 CalculatePolyWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u32 depth_);
 
 		/// Applies (12)
-		f64 CalculateExpWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const usize depth_);
+		f64 CalculateExpWeighting(const Node::Basis& basis_, const Eigen::AlignedBox3f& aabb_, const u32 depth_);
 
 		/// Uniformly divides the octree and fits a polynomial of degree 2 at every depth 4 node
-		void UniformlyRefine(f64& totalCoeffError_);
+		void UniformlyRefine();
 
 		/// Performs the main algo loop
-		void TickBuildThread(const BuildThreadPool::InitialData* const threadData_);
+		void TickBuildThread(const BuildThreadPool::InitialData* const threadData_, const u32 threadIdx_);
 
 		/// Performs the continuity main algo loop
-		void TickContinuityThread(const ContinuityThreadPool::InitialData* const threadData_, const usize threadIdx_);
+		void TickContinuityThread(const ContinuityThreadPool::InitialData* const threadData_, const u32 threadIdx_);
 
 		/// Performs a continuity post process to the SDF to try and get rid of discontinuities between cells
-		void PerformContinuityPostProcess(const usize nCoeffs_);
+		void PerformContinuityPostProcess(const u32 nCoeffs_);
 
 		/// Cleans up the memory by making it s.t. each node's coeff ptr is an offset into the same large block of memory. ~10% speed increase
-		usize ReallocCoeffs();
+		u32 ReallocCoeffs();
 
 		/// Proc functions from https://www.cs.rice.edu/~jwarren/papers/dualcontour.pdf
-		void NodeProc(const usize nodeIdx_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcX(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcY(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcZ(const usize nodeIdxA_, const usize nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
+		void NodeProc(const u32 nodeIdx_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
+		void FaceProcX(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
+		void FaceProcY(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
+		void FaceProcZ(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
 
 		/// Fills a triplet array for the sparse matrix up via another threadpool (if nThreads > 1)
 		void RunContinuityThreadPool(std::vector<Eigen::Triplet<f64>>& integralMatrixTriplets_);
 
 		/// Evaluates the shared face integral as in Appendix A... Though differs slightly due to possible error in paper
-		void EvaluateSharedFaceIntegralAnalytically(const usize nodeIdxA_, const usize nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_);
+		void EvaluateSharedFaceIntegralAnalytically(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_);
 
 		/// Evaluates the shared face integral using standard GL quadrature
-		void EvaluateSharedFaceIntegralNumerically(const usize nodeIdxA_, const usize nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_);
+		void EvaluateSharedFaceIntegralNumerically(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_);
 	};
 }

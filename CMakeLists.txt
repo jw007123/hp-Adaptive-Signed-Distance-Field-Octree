@@ -17,7 +17,8 @@ endif()
 # Code includes
 include_directories("External/eigen-master")
 include_directories("External/stb-master")
-add_subdirectory("Source")
+add_subdirectory("Source/HP")
+add_subdirectory("Source/Meshing")
 
 # Add exe
 add_executable(Example "Source/Main.cpp")

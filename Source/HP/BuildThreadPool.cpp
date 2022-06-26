@@ -22,7 +22,7 @@ namespace SDF
 		threadPool.reserve(initialData_->config.threadCount);
 		for (usize i = 0; i < initialData_->config.threadCount; ++i)
 		{
-			threadPool.push_back(std::thread(&Octree::TickBuildThread, octree_, initialData_));
+			threadPool.push_back(std::thread(&Octree::TickBuildThread, octree_, initialData_, i));
 		}
 	}
 

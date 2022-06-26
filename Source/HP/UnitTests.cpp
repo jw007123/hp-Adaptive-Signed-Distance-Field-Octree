@@ -90,7 +90,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeCreation()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -110,7 +110,7 @@ namespace SDF
 		{
 			const Eigen::Vector3d sample(box.sample());
 			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample);
+			const f64 trueS = SphereFunc(sample, 0);
 
 			if (abs(octS - trueS) > 0.01)
 			{
@@ -124,7 +124,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeContinuity()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -145,7 +145,7 @@ namespace SDF
 		{
 			const Eigen::Vector3d sample(box.sample());
 			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample);
+			const f64 trueS = SphereFunc(sample, 0);
 
 			if (abs(octS - trueS) > 0.01)
 			{
@@ -159,7 +159,7 @@ namespace SDF
 
 	bool UnitTests::TestOctreeSerialisation()
 	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
 		{
 			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
 		};
@@ -187,7 +187,7 @@ namespace SDF
 		{
 			const Eigen::Vector3d sample(box.sample());
 			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample);
+			const f64 trueS = SphereFunc(sample, 0);
 
 			if (abs(octS - trueS) > 0.01)
 			{
@@ -201,7 +201,7 @@ namespace SDF
 
     bool UnitTests::TestOctreeCopying()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -223,7 +223,7 @@ namespace SDF
         {
             const Eigen::Vector3d sample(box.sample());
             const f64 octS  = otherOctree.Query(sample);
-            const f64 trueS = SphereFunc(sample);
+            const f64 trueS = SphereFunc(sample, 0);
 
             if (abs(octS - trueS) > 0.01)
             {
@@ -237,7 +237,7 @@ namespace SDF
         {
             const Eigen::Vector3d sample(box.sample());
             const f64 octS  = otherOctree.Query(sample);
-            const f64 trueS = SphereFunc(sample);
+            const f64 trueS = SphereFunc(sample, 0);
 
             if (abs(octS - trueS) > 0.01)
             {
@@ -251,12 +251,12 @@ namespace SDF
 
     bool UnitTests::TestOctreeSDFOperations()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
 
-        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto OtherSphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ + Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
         };
@@ -276,7 +276,7 @@ namespace SDF
             {
                 const Eigen::Vector3d sample(box.sample());
                 const f64 octS  = hpOctree.Query(sample);
-                const f64 trueS = std::min(SphereFunc(sample), OtherSphereFunc(sample));
+                const f64 trueS = std::min(SphereFunc(sample, 0), OtherSphereFunc(sample, 0));
 
                 if (abs(octS - trueS) > 0.01)
                 {
@@ -295,7 +295,7 @@ namespace SDF
             {
                 const Eigen::Vector3d sample(box.sample());
                 const f64 octS  = hpOctree.Query(sample);
-                const f64 trueS = std::max(SphereFunc(sample), OtherSphereFunc(sample));
+                const f64 trueS = std::max(SphereFunc(sample, 0), OtherSphereFunc(sample, 0));
 
                 if (abs(octS - trueS) > 0.01)
                 {
@@ -314,7 +314,7 @@ namespace SDF
             {
                 const Eigen::Vector3d sample(box.sample());
                 const f64 octS  = hpOctree.Query(sample);
-                const f64 trueS = std::max(SphereFunc(sample) * -1.0, OtherSphereFunc(sample));
+                const f64 trueS = std::max(SphereFunc(sample, 0) * -1.0, OtherSphereFunc(sample, 0));
 
                 if (abs(octS - trueS) > 0.01)
                 {
@@ -329,7 +329,7 @@ namespace SDF
 
     bool UnitTests::TestOctreeCustomDomains()
     {
-        auto SphereFunc = [](const Eigen::Vector3d& pt_) -> f64
+        auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
         {
             return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.75;
         };
@@ -339,17 +339,17 @@ namespace SDF
         hpConfig.continuity.enforce         = true;
         hpConfig.continuity.strength        = 8.0;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
-        hpConfig.root                       = Eigen::AlignedBox3f(Eigen::Vector3f(-0.25, -0.25, -0.25), Eigen::Vector3f(0.5, 0.5, 0.5));
+        hpConfig.root                       = Eigen::AlignedBox3f(Eigen::Vector3f(-0.25, -0.25, -0.25), Eigen::Vector3f(5, 5, 5));
 
         Octree hpOctree;
         hpOctree.Create(hpConfig, SphereFunc);
 
-        const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.25, -0.25, -0.25), Eigen::Vector3d(0.5, 0.5, 0.5));
+        const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.25, -0.25, -0.25), Eigen::Vector3d(5, 5, 5));
         for (usize i = 0; i < 1000000; ++i)
         {
             const Eigen::Vector3d sample(box.sample());
             const f64 octS  = hpOctree.Query(sample);
-            const f64 trueS = SphereFunc(sample);
+            const f64 trueS = SphereFunc(sample, 0);
 
             if (abs(octS - trueS) > 0.01)
             {

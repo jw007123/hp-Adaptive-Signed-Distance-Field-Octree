@@ -1,14 +1,9 @@
 #pragma once
 
-#include <malloc.h>
-
 #include "Literals.h"
 
-namespace SDF
+struct MemoryBlock
 {
-	struct MemoryBlock
-	{
-		usize size;
-		void* ptr;
-	};
-}
+	usize size;
+	void* ptr;
+};

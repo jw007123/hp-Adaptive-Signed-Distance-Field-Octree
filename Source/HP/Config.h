@@ -32,6 +32,7 @@ namespace SDF
 			f64  strength;
 		} continuity;
 
+        bool  enableLogging;
 		f64   targetErrorThreshold;
 		usize threadCount;
 
