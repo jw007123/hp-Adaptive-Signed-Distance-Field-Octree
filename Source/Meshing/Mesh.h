@@ -10,7 +10,7 @@
 #include "../Literals.h"
 
 #include "ObjParser.h"
-#include "Simplex.h"
+#include "Utility.h"
 
 namespace Meshing
 {

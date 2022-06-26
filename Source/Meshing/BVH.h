@@ -10,7 +10,7 @@
 #include "../Literals.h"
 
 #include "Mesh.h"
-#include "Simplex.h"
+#include "Utility.h"
 #include "NNOctree.h"
 
 namespace Meshing

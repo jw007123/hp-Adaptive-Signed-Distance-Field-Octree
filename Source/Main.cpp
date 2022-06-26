@@ -7,7 +7,7 @@
 #include "HP/UnitTests.cpp"
 #include "HP/Benchmarks.cpp"
 
-#include "Meshing/Simplex.cpp"
+#include "Meshing/Utility.cpp"
 #include "Meshing/ObjParser.cpp"
 #include "Meshing/NNOctree.cpp"
 #include "Meshing/BVH.cpp"

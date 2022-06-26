@@ -1,4 +1,4 @@
-#include "Simplex.h"
+#include "Utility.h"
 
 namespace Meshing
 {
