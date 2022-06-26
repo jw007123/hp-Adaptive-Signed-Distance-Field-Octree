@@ -65,11 +65,11 @@ namespace SDF
 
 			if (testPassed)
 			{
-				printf("%sPassed\n\n", TestStrings[i]);
+				printf("%s: Passed\n\n", TestStrings[i]);
 			}
 			else
 			{
-				printf("%sFailed\n\n", TestStrings[i]);
+				printf("%s: Failed\n\n", TestStrings[i]);
 			}
 
             testsPassed += testPassed;
@@ -262,7 +262,7 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold       = pow(10, -8);
+        hpConfig.targetErrorThreshold       = pow(10, -9);
         hpConfig.continuity.enforce         = false;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 

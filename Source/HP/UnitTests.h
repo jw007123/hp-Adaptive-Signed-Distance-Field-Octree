@@ -26,12 +26,12 @@ namespace SDF
 
 		const char* TestStrings[Test::Num] = 
 		{
-			"Octree Creation: ",
-			"Octree Continuity: ",
-			"Octree Serialisation: ",
-            "Octree Copying: ",
-            "Octree SDF Operations: ",
-            "Octree Custom Domains: ",
+			"Octree Creation",
+			"Octree Continuity",
+			"Octree Serialisation",
+            "Octree Copying",
+            "Octree SDF Operations",
+            "Octree Custom Domains",
 		};
 
 		bool TestOctreeCreation();

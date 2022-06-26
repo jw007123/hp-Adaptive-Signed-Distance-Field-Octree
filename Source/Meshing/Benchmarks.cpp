@@ -64,30 +64,90 @@ namespace Meshing
 
     f64 Benchmarks::BenchmarkObjFileParsing()
     {
-        return 0.0;
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+        {
+            ObjParser objParser;
+            objParser.Load("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        }
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
+
+        return timeDiff.count();
     }
 
 
     f64 Benchmarks::BenchmarkMeshFromObj()
     {
-        return 0.0;
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+        {
+            Mesh objMesh;
+            objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        }
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+
+        return timeDiff.count();
     }
 
 
     f64 Benchmarks::BenchmarkBVHFromMesh()
     {
-        return 0.0;
+        Mesh objMesh;
+        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+        {
+            BVH objBVH;
+            objBVH.Create(objMesh);
+        }
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+
+        return timeDiff.count();
     }
 
 
     f64 Benchmarks::BenchmarkBVHQuerying()
     {
-        return 0.0;
+        Mesh objMesh;
+        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        const Eigen::AlignedBox3f meshRoot = objMesh.CalculateMeshAABB();
+
+        BVH objBVH;
+        objBVH.Create(objMesh);
+
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+        {
+            for (u32 i = 0; i < 10000; ++i)
+            {
+                const Eigen::Vector3f sample = meshRoot.sample();
+                const f32 d                  = objMesh.SignedDistanceAtPt(sample, objBVH);
+            }
+        }
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+
+        return timeDiff.count();
     }
 
 
     f64 Benchmarks::BenchmarkNaiveMeshQuerying()
     {
-        return 0.0;
+        Mesh objMesh;
+        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        const Eigen::AlignedBox3f meshRoot = objMesh.CalculateMeshAABB();
+
+        const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+        {
+            for (u32 i = 0; i < 100; ++i)
+            {
+                const Eigen::Vector3f sample = meshRoot.sample();
+                const f32 d = objMesh.SignedDistanceAtPt(sample);
+            }
+        }
+        const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+
+        return timeDiff.count();
     }
 }

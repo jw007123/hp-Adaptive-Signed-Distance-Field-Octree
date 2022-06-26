@@ -28,11 +28,11 @@ namespace Meshing
 
         const char* BenchmarkStrings[Benchmark::Num] =
         {
-            ".obj File Parsing",
-            "ObjParser -> Mesh",
-            "Mesh -> BVH",
-            "BVH Querying",
-            "Mesh O(n) Querying"
+            "1.6M tri .obj File Parsing",
+            "1.6M tri .obj Mesh Creation",
+            "1.6M tri Mesh -> BVH",
+            "1.6M tri BVH 10K Queries",
+            "1.6M tri Mesh O(n) 100 Queries"
         };
 
         f64 BenchmarkObjFileParsing();
