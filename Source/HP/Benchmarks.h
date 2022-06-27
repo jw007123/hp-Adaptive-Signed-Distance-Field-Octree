@@ -27,8 +27,8 @@ namespace SDF
         {
             "Octree Creation",
             "Octree Continuity",
-            "Octree Distance Querying",
-            "Octree Normal Querying",
+            "Octree 10M Distance Querying",
+            "Octree 10M Normal Querying",
             "Octree SDF Operations"
         };
 

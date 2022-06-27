@@ -84,7 +84,7 @@ namespace Meshing
             objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
 
         return timeDiff.count();
     }
@@ -101,7 +101,7 @@ namespace Meshing
             objBVH.Create(objMesh);
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
 
         return timeDiff.count();
     }
@@ -125,7 +125,7 @@ namespace Meshing
             }
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
 
         return timeDiff.count();
     }
@@ -146,7 +146,7 @@ namespace Meshing
             }
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<f64> timeDiff = endTime - startTime;
+        const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
 
         return timeDiff.count();
     }

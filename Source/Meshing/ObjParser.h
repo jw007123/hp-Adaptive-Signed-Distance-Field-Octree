@@ -50,6 +50,5 @@ namespace Meshing
 
         /// Calculates vertex normals from just vertices and indices alone
         void CalculateVertexNormals();
-
     };
 }
