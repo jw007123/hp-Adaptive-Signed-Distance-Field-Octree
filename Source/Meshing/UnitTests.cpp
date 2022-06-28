@@ -71,11 +71,11 @@ namespace Meshing
 
         if (testsPassed == Test::Num)
         {
-            printf("All tests passed!");
+            printf("All tests passed!\n\n");
         }
         else
         {
-            printf("Some tests failed!");
+            printf("Some tests failed!\n\n");
         }
 
         return (testsPassed == Test::Num);

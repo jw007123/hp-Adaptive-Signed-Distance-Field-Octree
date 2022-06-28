@@ -31,7 +31,7 @@ void RunTests()
 
     // Meshing
     {
-        printf("\n\nRunning Meshing unit tests...\n\n");
+        printf("Running Meshing unit tests...\n\n");
 
         Meshing::UnitTests unitTests;
         if (!unitTests.Run())
@@ -50,7 +50,7 @@ void RunBenchmarks()
 {
     // HP
     {
-        printf("\n\nRunning HP benchmarks...\n\n");
+        printf("Running HP benchmarks...\n\n");
 
         SDF::Benchmarks benchmarks;
         benchmarks.Run();
@@ -60,7 +60,7 @@ void RunBenchmarks()
 
     // Meshing
     {
-        printf("\n\nRunning Meshing benchmarks...\n\n");
+        printf("Running Meshing benchmarks...\n\n");
 
         Meshing::Benchmarks benchmarks;
         benchmarks.Run();

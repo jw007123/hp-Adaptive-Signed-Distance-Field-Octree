@@ -57,7 +57,7 @@ namespace Meshing
                     assert(0);
             }
 
-            printf("\n\nCompleted %s in %lfs", BenchmarkStrings[i], timeDiff);
+            printf("Completed %s in %lfs\n\n", BenchmarkStrings[i], timeDiff);
         }
     }
 

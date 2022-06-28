@@ -57,7 +57,7 @@ namespace SDF
                     assert(0);
             }
 
-            printf("\n\nCompleted %s in %lfs", BenchmarkStrings[i], timeDiff);
+            printf("Completed %s in %lfs\n\n", BenchmarkStrings[i], timeDiff);
         }
     }
 
@@ -196,7 +196,7 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold       = pow(10, -9);
+        hpConfig.targetErrorThreshold       = pow(10, -8);
         hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Exponential;
         hpConfig.nearnessWeighting.strength = 3.0;
         hpConfig.continuity.enforce         = false;

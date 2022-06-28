@@ -77,11 +77,11 @@ namespace SDF
 
         if (testsPassed == Test::Num)
         {
-            printf("All tests passed!");
+            printf("All tests passed!\n\n");
         }
         else
         {
-            printf("Some tests failed!");
+            printf("Some tests failed!\n\n");
         }
 
         return (testsPassed == Test::Num);
@@ -262,7 +262,7 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold       = pow(10, -9);
+        hpConfig.targetErrorThreshold       = pow(10, -8);
         hpConfig.continuity.enforce         = false;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
@@ -278,7 +278,7 @@ namespace SDF
                 const f64 octS  = hpOctree.Query(sample);
                 const f64 trueS = std::min(SphereFunc(sample, 0), OtherSphereFunc(sample, 0));
 
-                if (abs(octS - trueS) > 0.01)
+                if (abs(octS - trueS) > 0.05)
                 {
                     return false;
                 }
@@ -297,7 +297,7 @@ namespace SDF
                 const f64 octS  = hpOctree.Query(sample);
                 const f64 trueS = std::max(SphereFunc(sample, 0), OtherSphereFunc(sample, 0));
 
-                if (abs(octS - trueS) > 0.01)
+                if (abs(octS - trueS) > 0.05)
                 {
                     return false;
                 }
@@ -316,7 +316,7 @@ namespace SDF
                 const f64 octS  = hpOctree.Query(sample);
                 const f64 trueS = std::max(SphereFunc(sample, 0) * -1.0, OtherSphereFunc(sample, 0));
 
-                if (abs(octS - trueS) > 0.01)
+                if (abs(octS - trueS) > 0.05)
                 {
                     return false;
                 }

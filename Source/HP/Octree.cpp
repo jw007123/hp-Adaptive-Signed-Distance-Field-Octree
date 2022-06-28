@@ -779,9 +779,9 @@ namespace SDF
 		// Copy current node basis into P
         if (isCoarse)
         {
-            pBasis_.coeffs = (f64*)malloc(sizeof(f64) * LegendreCoeffientCount[4]);
+            pBasis_.coeffs = (f64*)malloc(sizeof(f64) * LegendreCoeffientCount[2]);
             pBasis_.degree = 0;
-            pBasisError_   = FitPolynomial(pBasis_, inputData_.node.aabb, 4, nodeDepth, threadIdx_);
+            pBasisError_   = FitPolynomial(pBasis_, inputData_.node.aabb, 2, nodeDepth, threadIdx_);
 
             return pBasisError_;
         }
