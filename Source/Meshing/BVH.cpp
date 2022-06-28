@@ -134,7 +134,7 @@ namespace Meshing
 
             // Add expected parent to array
             ParentInfo parentInfo;
-            parentInfo.childIdx   = nodes.size() - 2;
+            parentInfo.childIdx   = (u32)nodes.size() - 2;
             parentInfo.parentAABB = (a.aabb).merged(b.aabb);
             parentInfo.available  = true;
             parents_.push_back(parentInfo);
@@ -219,7 +219,7 @@ namespace Meshing
 
             // Add expected parent to array
             ParentInfo parentInfo;
-            parentInfo.childIdx   = nodes.size() - 2;
+            parentInfo.childIdx   = (u32)nodes.size() - 2;
             parentInfo.parentAABB = a.merged(b);
             parentInfo.available  = true;
             newParents_.push_back(parentInfo);
@@ -251,7 +251,7 @@ namespace Meshing
             {
                 // Done
                 nodes[0].isLeaf   = IS_LEAF_FALSE;
-                nodes[0].childIdx = nodes.size() - 2;
+                nodes[0].childIdx = (u32)nodes.size() - 2;
                 break;
             }
 

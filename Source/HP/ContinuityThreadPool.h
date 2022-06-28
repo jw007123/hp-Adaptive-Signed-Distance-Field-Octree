@@ -22,8 +22,8 @@ namespace SDF
 	public:
 		struct Input
 		{
-			std::pair<usize, usize> nodeIdxs;
-			u8                      dim;
+			std::pair<u32, u32> nodeIdxs;
+			u8                  dim;
 		};
 
 		struct InitialData

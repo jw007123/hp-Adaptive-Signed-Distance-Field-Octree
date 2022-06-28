@@ -61,7 +61,7 @@ namespace Meshing
         const Eigen::Vector3f pseudoNormal   = PseudoNormal(closestTriIdx, simplexInfo.simplex, simplexInfo.simplexIdx);
 
         // Use info to calculate final signed distance
-        const f32 sign = pseudoNormal.dot(pt_ - simplexInfo.closestPt) > 0.0 ? 1.0 : -1.0;
+        const f32 sign = pseudoNormal.dot(pt_ - simplexInfo.closestPt) > 0.0f ? 1.0f : -1.0f;
         return sign * (pt_ - simplexInfo.closestPt).norm();
     }
 
@@ -78,7 +78,7 @@ namespace Meshing
         const Eigen::Vector3f pseudoNormal   = PseudoNormal(closestTriIdx, simplexInfo.simplex, simplexInfo.simplexIdx);
 
         // Use info to calculate final signed distance
-        const f32 sign = pseudoNormal.dot(pt_ - simplexInfo.closestPt) > 0.0 ? 1.0 : -1.0;
+        const f32 sign = pseudoNormal.dot(pt_ - simplexInfo.closestPt) > 0.0f ? 1.0f : -1.0f;
         return sign * (pt_ - simplexInfo.closestPt).norm();
     }
 
@@ -201,6 +201,8 @@ namespace Meshing
             default:
                 assert(0);
         }
+
+        return Eigen::Vector3f::UnitZ();
     }
 
 

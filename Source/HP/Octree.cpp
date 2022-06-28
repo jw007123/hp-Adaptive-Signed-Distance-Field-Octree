@@ -213,7 +213,7 @@ namespace SDF
 			// Ensure that the threads have enough work
 			threadData.inputQueueMutex->lock();
 			{
-				u32 curQueueSize = threadData.inputQueue->size();
+				u32 curQueueSize = (u32)threadData.inputQueue->size();
 				for (u32 i = curQueueSize; i < 10 * config.threadCount && !finished; ++i)
 				{
 					// Pop node off and send all required info in Input struct
@@ -436,7 +436,7 @@ namespace SDF
 		*((u32*)octBlock.ptr) = nCoeffs;
 		memcpy((u8*)octBlock.ptr + sizeof(u32), coeffStore, sizeof(f64) * nCoeffs);
 
-		*(u32*)((u8*)octBlock.ptr + (sizeof(u32) + sizeof(f64) * nCoeffs)) = nodes.size();
+		*(u32*)((u8*)octBlock.ptr + (sizeof(u32) + sizeof(f64) * nCoeffs)) = (u32)nodes.size();
 		memcpy((u8*)octBlock.ptr + (sizeof(u32) + sizeof(f64) * nCoeffs + sizeof(u32)), nodes.data(), sizeof(Node) * nodes.size());
 
 		*(Config*)((u8*)octBlock.ptr + (sizeof(u32) + sizeof(f64) * nCoeffs + sizeof(u32) + sizeof(Node) * nodes.size())) = config;

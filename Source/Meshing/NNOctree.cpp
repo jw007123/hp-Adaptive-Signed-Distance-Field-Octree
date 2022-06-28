@@ -214,11 +214,11 @@ namespace Meshing
             const f32 curNodeAABBHalfY     = (aabbMax.y() - aabbMin.y()) * 0.5f;
             const f32 curNodeAABBHalfZ     = (aabbMax.z() - aabbMin.z()) * 0.5f;
 
-            const usize xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalfX));
-            const usize yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalfY)) << 1;
-            const usize zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalfZ)) << 2;
+            const u32 xIdx = (pt_.x() >= (aabbMin.x() + curNodeAABBHalfX));
+            const u32 yIdx = (pt_.y() >= (aabbMin.y() + curNodeAABBHalfY)) << 1;
+            const u32 zIdx = (pt_.z() >= (aabbMin.z() + curNodeAABBHalfZ)) << 2;
 
-            const usize childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
+            const u32 childIdx   = (u32)(nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx);
             const Node& curChild = nodes[childIdx];
             if (curChild.isLeaf == IS_LEAF_TRUE)
             {
@@ -247,7 +247,7 @@ namespace Meshing
         }
 
         // Make non-leaf. Defer data free until points re-added
-        nodes[nodeIdx_].childIdx = nodes.size() - 8;
+        nodes[nodeIdx_].childIdx = (u32)nodes.size() - 8;
         nodes[nodeIdx_].isLeaf   = IS_LEAF_FALSE;
 
         // Insert parent points in new leaves

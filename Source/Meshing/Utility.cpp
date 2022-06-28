@@ -87,7 +87,7 @@ namespace Meshing
 
         const f32 u = va / (va + vb + vc);
         const f32 v = vb / (va + vb + vc);
-        const f32 w = 1.0 - u - v;
+        const f32 w = 1.0f - u - v;
 
         ClosestSimplexInfo simpInfo;
         simpInfo.closestPt  = u * a_ + v * b_ + w * c_;
@@ -119,7 +119,7 @@ namespace Meshing
 
         for (u8 i = 0; i < 3; ++i)
         {
-            f32 v = p_(i);
+            f32 v         = p_(i);
             const f32 min = aabb_.min()(i);
             const f32 max = aabb_.max()(i);
 

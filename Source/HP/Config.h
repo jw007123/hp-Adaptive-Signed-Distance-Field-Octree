@@ -32,9 +32,9 @@ namespace SDF
 			f64  strength;
 		} continuity;
 
-        bool  enableLogging;
-		f64   targetErrorThreshold;
-		usize threadCount;
+        bool enableLogging;
+		f64  targetErrorThreshold;
+		u32  threadCount;
 
         Eigen::AlignedBox3f root;
 

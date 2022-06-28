@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+
 #include "HP/Ray.cpp"
 #include "HP/Config.cpp"
 #include "HP/Node.cpp"

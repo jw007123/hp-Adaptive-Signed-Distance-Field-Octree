@@ -29,7 +29,7 @@ namespace SDF
 
 	void BuildThreadPool::StopThreads()
 	{
-		for (usize i = 0; i < threadPool.size(); ++i)
+		for (u32 i = 0; i < threadPool.size(); ++i)
 		{
 			threadPool[i].join();
 		}

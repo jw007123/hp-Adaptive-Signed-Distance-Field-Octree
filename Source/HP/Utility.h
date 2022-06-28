@@ -53,10 +53,10 @@ namespace SDF
 	{
 		constexpr SumToNCalc() : values()
 		{
-			for (usize i = 0; i <= (4 * BASIS_MAX_DEGREE + 1); ++i)
+			for (u32 i = 0; i <= (4 * BASIS_MAX_DEGREE + 1); ++i)
 			{
-				usize sum = 0;
-				for (usize j = 0; j <= i; ++j)
+                u32 sum = 0;
+				for (u32 j = 0; j <= i; ++j)
 				{
 					sum += j;
 				}
@@ -64,9 +64,9 @@ namespace SDF
 				values[i] = sum;
 			}
 		}
-		usize values[(4 * BASIS_MAX_DEGREE + 1) + 1];
+        u32 values[(4 * BASIS_MAX_DEGREE + 1) + 1];
 	};
-	constexpr const usize(&SumToN)[(4 * BASIS_MAX_DEGREE + 1) + 1] = SumToNCalc().values;
+	constexpr const u32(&SumToN)[(4 * BASIS_MAX_DEGREE + 1) + 1] = SumToNCalc().values;
 
 	/*
 		In equation (4), precomputes the sqrt portions under the assumption that the internal octree
@@ -76,9 +76,9 @@ namespace SDF
 	{
 		constexpr NormalisedLengthsCalc() : values()
 		{
-			for (usize i = 0; i <= BASIS_MAX_DEGREE; ++i)
+			for (u32 i = 0; i <= BASIS_MAX_DEGREE; ++i)
 			{
-				for (usize j = 0; j <= TREE_MAX_DEPTH; ++j)
+				for (u32 j = 0; j <= TREE_MAX_DEPTH; ++j)
 				{
 					// Sizes are 1 at level 0, 0.5 at level 1, ... , 2^-n at level n
 					values[i][j] = SqrtConst((2.0 * i + 1.0) * PowConst(2.0, j));
@@ -102,20 +102,20 @@ namespace SDF
 		{
 			const f64 f = 1.0 / 6.0;
 
-			for (usize i = 0; i <= BASIS_MAX_DEGREE; ++i)
+			for (u32 i = 0; i <= BASIS_MAX_DEGREE; ++i)
 			{
-				values[i] = (usize)(f * (i + 1) * (i + 2) * (i + 3));
+				values[i] = (u32)(f * (i + 1) * (i + 2) * (i + 3));
 			}
 		}
-		usize values[BASIS_MAX_DEGREE + 1];
+        u32 values[BASIS_MAX_DEGREE + 1];
 
-		static constexpr const usize Size()
+		static constexpr const u32 Size()
 		{
 			const f64 f = 1.0 / 6.0;
-			return (usize)(f * (BASIS_MAX_DEGREE + 1) * (BASIS_MAX_DEGREE + 2) * (BASIS_MAX_DEGREE + 3));
+			return (u32)(f * (BASIS_MAX_DEGREE + 1) * (BASIS_MAX_DEGREE + 2) * (BASIS_MAX_DEGREE + 3));
 		}
 	};
-	constexpr const usize (&LegendreCoeffientCount)[BASIS_MAX_DEGREE + 1] = LegendreCoefficientCountCalc().values;
+	constexpr const u32(&LegendreCoeffientCount)[BASIS_MAX_DEGREE + 1] = LegendreCoefficientCountCalc().values;
 
 	/*
 		Stores the constants used in each term of the reccurence relation definition for Legendre polynomials.
@@ -128,7 +128,7 @@ namespace SDF
 			values[0][0] = 0.0;
 			values[0][1] = 0.0;
 
-			for (usize i = 1; i <= BASIS_MAX_DEGREE; ++i)
+			for (u32 i = 1; i <= BASIS_MAX_DEGREE; ++i)
 			{
 				values[i][0] = (2.0 * i - 1.0) / i;
 				values[i][1] = (i - 1.0) / i;
@@ -146,14 +146,14 @@ namespace SDF
 	{
 		constexpr BasisIndexValuesCalc() : values()
 		{
-			usize valuesIdx = 0;
-			for (usize p = 0; p <= BASIS_MAX_DEGREE; ++p)
+            u32 valuesIdx = 0;
+			for (u32 p = 0; p <= BASIS_MAX_DEGREE; ++p)
 			{
-				for (usize i = 0; i <= p; ++i)
+				for (u32 i = 0; i <= p; ++i)
 				{
-					for (usize j = 0; j <= p - i; ++j)
+					for (u32 j = 0; j <= p - i; ++j)
 					{
-						for (usize k = 0; k <= p - i - j; ++k)
+						for (u32 k = 0; k <= p - i - j; ++k)
 						{
 							if ((i + j + k) == p)
 							{
@@ -167,7 +167,7 @@ namespace SDF
 				}
 			}
 		}
-		usize values[LegendreCoefficientCountCalc::Size()][3];
+        u32 values[LegendreCoefficientCountCalc::Size()][3];
 	};
-	constexpr const usize(&BasisIndexValues)[LegendreCoefficientCountCalc::Size()][3] = BasisIndexValuesCalc().values;
+	constexpr const u32(&BasisIndexValues)[LegendreCoefficientCountCalc::Size()][3] = BasisIndexValuesCalc().values;
 }

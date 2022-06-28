@@ -23,8 +23,8 @@ namespace SDF
 	public:
 		struct Input
 		{
-			Node                  node;
-			std::pair<usize, f64> nodeIdxAndErr;
+			Node                node;
+			std::pair<u32, f64> nodeIdxAndErr;
 		};
 
 		struct Output
@@ -40,7 +40,7 @@ namespace SDF
 			// If basisType == H...
 			u8 childIdx;
 
-			usize nodeIdx;
+            u32   nodeIdx;
 			f64   initialErr;
 			f64   newErr;
 		};

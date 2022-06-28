@@ -147,7 +147,7 @@ namespace Meshing
   
     void ObjParser::CalculateVertexNormals()
     {
-        const u32 nTris = triIndices.size() / 3;
+        const u32 nTris = (u32)triIndices.size() / 3;
         
         // Alloc and set all to 0
         vertexNormals.resize(vertices.size());
