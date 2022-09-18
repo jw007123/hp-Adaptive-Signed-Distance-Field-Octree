@@ -71,7 +71,7 @@ namespace Meshing
         void Subdivide(const u32 nodeIdx_);
 
         /// Returns the ith child AABB of a node
-        Eigen::AlignedBox3f NNOctree::CornerAABB(const Eigen::AlignedBox3f& aabb_, const u8 i_) const;
+        Eigen::AlignedBox3f CornerAABB(const Eigen::AlignedBox3f& aabb_, const u8 i_) const;
 
         /// Performs a NN on a leaf's points, returning the idx of the closest (and second closest if notThis != -1)
         u8 NearestPointInLeaf(const u32 leafIdx_, const Eigen::Vector3f& pt_) const;

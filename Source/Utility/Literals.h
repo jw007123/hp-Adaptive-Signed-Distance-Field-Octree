@@ -10,6 +10,6 @@ typedef long unsigned int      u32;
 typedef long long unsigned int u64;
 typedef size_t                 usize;
 
-constexpr f64   PI          = 3.14159265359;
-constexpr usize PATH_MAX    = 1024;
-constexpr f32   EPSILON_F32 = 0.000001f;
+constexpr f64   PI           = 3.14159265359;
+constexpr usize PATH_MAX_LEN = 1024;
+constexpr f32   EPSILON_F32  = 0.000001f;

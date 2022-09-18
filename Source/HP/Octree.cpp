@@ -747,7 +747,7 @@ namespace SDF
 
 	f64 Octree::EstimateHImprovement(const BuildThreadPool::Input& inputData_, Node::Basis* hBases_, f64* hBasesErrors_, const u32 threadIdx_)
 	{
-        if (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < DBL_EPSILON)
+        if (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < std::numeric_limits<f64>::epsilon())
         {
             // Do nothing if we're in the coarse refinement stage
             return 0.0;
@@ -772,7 +772,7 @@ namespace SDF
 
 	f64 Octree::EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_, const u32 threadIdx_)
 	{
-        const bool isCoarse  = (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < DBL_EPSILON);
+        const bool isCoarse  = (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < std::numeric_limits<f64>::epsilon());
 		const u8 basisDegree = inputData_.node.basis.degree;
 		const u8 nodeDepth   = inputData_.node.depth;
 
@@ -1138,8 +1138,8 @@ namespace SDF
 		}
 
 		// Write to file
-		char fNameWithExt[PATH_MAX];
-		sprintf_s(fNameWithExt, PATH_MAX, "%s.bmp", fName_);
+		char fNameWithExt[PATH_MAX_LEN];
+		snprintf(fNameWithExt, PATH_MAX_LEN, "%s.bmp", fName_);
 		const bool success = stbi_write_bmp(fNameWithExt, nSamples, nSamples, 3, imageBytes);
 		assert(success);
 

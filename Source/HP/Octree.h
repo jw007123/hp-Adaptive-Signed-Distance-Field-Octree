@@ -5,6 +5,7 @@
 #include <functional>
 #include <map>
 #include <iostream>
+#include <limits>
 
 #include <malloc.h>
 
