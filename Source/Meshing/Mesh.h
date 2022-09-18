@@ -7,7 +7,7 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "../Literals.h"
+#include "Literals.h"
 
 #include "ObjParser.h"
 #include "Utility.h"
@@ -50,10 +50,7 @@ namespace Meshing
         void Clear();
 
         /// Creates a mesh from an ObjParser object or a .obj filepath
-        void CreateFromObj(const char* objPath_);
-
-        /// Is true if the mesh is in a valid internal state
-        const bool HasValidState() const { return hasValidState; }
+        bool CreateFromObj(const char* objPath_);
 
         /// > 0 implies outside mesh
         f32 SignedDistanceAtPt(const Eigen::Vector3f& pt_);
@@ -77,8 +74,6 @@ namespace Meshing
         Eigen::Vector3f PseudoNormalEdge(const u32 triIndex_, const SimplexID simplexIdx_);
         Eigen::Vector3f PseudoNormalVertex(const u32 triIndex_, const SimplexID simplexIdx_);
 
-        bool hasValidState;
-        
         std::vector<u32>             halfEdges;
         std::vector<u32>             triIndices;
         std::vector<Eigen::Vector3f> vertexNormals;

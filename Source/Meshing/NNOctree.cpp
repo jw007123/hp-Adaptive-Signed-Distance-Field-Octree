@@ -4,7 +4,7 @@ namespace Meshing
 {
     NNOctree::Node::Node()
     {
-        isLeaf = IS_LEAF_TRUE;
+        isLeaf = true;
         data   = nullptr;
         nIdxs  = 0;
     }
@@ -19,7 +19,7 @@ namespace Meshing
 
     NNOctree::NNOctree()
     {
-        hasValidState = false;
+
     }
 
 
@@ -27,7 +27,7 @@ namespace Meshing
     {
         for (u32 i = 0; i < nodes.size(); ++i)
         {
-            if (nodes[i].isLeaf == IS_LEAF_TRUE && nodes[i].data != nullptr)
+            if (nodes[i].isLeaf && nodes[i].data != nullptr)
             {
                 free(nodes[i].data);
             }
@@ -39,14 +39,12 @@ namespace Meshing
     {
         for (u32 i = 0; i < nodes.size(); ++i)
         {
-            if (nodes[i].isLeaf == IS_LEAF_TRUE && nodes[i].data != nullptr)
+            if (nodes[i].isLeaf && nodes[i].data != nullptr)
             {
                 free(nodes[i].data);
             }
         }
         nodes.clear();
-
-        hasValidState = false;
     }
 
 
@@ -59,14 +57,12 @@ namespace Meshing
         root.aabb = root_;
         nodes.push_back(root);
         Subdivide(0);
-
-        hasValidState = true;
     }
 
     
     void NNOctree::InsertPoint(const Eigen::Vector3f& pt_, const u32& data_)
     {
-        if (!hasValidState)
+        if (!nodes.size())
         {
             assert(0);
         }
@@ -90,7 +86,7 @@ namespace Meshing
 
     bool NNOctree::RemovePoint(const Eigen::Vector3f& pt_)
     {
-        if (!hasValidState)
+        if (!nodes.size())
         {
             assert(0);
         }
@@ -133,7 +129,7 @@ namespace Meshing
  
     std::pair<Eigen::Vector3f, u32> NNOctree::NearestPoint(const Eigen::Vector3f& pt_, const f32 maxDistance_) const
     {
-        if (!hasValidState)
+        if (!nodes.size())
         {
             assert(0);
         }
@@ -161,7 +157,7 @@ namespace Meshing
                 continue;
             }
 
-            if (nodes[curItem.first].isLeaf == IS_LEAF_TRUE)
+            if (nodes[curItem.first].isLeaf)
             {
                 // Get best point in node and update bests
                 const u8 bestPtIdx = NearestPointInLeaf(curItem.first, pt_);
@@ -220,7 +216,7 @@ namespace Meshing
 
             const u32 childIdx   = (u32)(nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx);
             const Node& curChild = nodes[childIdx];
-            if (curChild.isLeaf == IS_LEAF_TRUE)
+            if (curChild.isLeaf)
             {
                 return std::pair<u32, u32>(childIdx, curNodeIdx);
             }
@@ -248,7 +244,7 @@ namespace Meshing
 
         // Make non-leaf. Defer data free until points re-added
         nodes[nodeIdx_].childIdx = (u32)nodes.size() - 8;
-        nodes[nodeIdx_].isLeaf   = IS_LEAF_FALSE;
+        nodes[nodeIdx_].isLeaf   = false;
 
         // Insert parent points in new leaves
         for (u8 i = 0; i < nodes[nodeIdx_].nIdxs; ++i)
@@ -269,32 +265,16 @@ namespace Meshing
     Eigen::AlignedBox3f NNOctree::CornerAABB(const Eigen::AlignedBox3f& aabb_, const u8 i_) const
     {
         Eigen::AlignedBox3f cornerAABB = aabb_;
-
-        if (i_ & 1)
+        for (u8 d = 0; d < 3; ++d)
         {
-            cornerAABB.min().x() = (aabb_.max().x() + aabb_.min().x()) * 0.5f;
-        }
-        else
-        {
-            cornerAABB.max().x() = (aabb_.max().x() + aabb_.min().x()) * 0.5f;
-        }
-
-        if (i_ & 2)
-        {
-            cornerAABB.min().y() = (aabb_.max().y() + aabb_.min().y()) * 0.5f;
-        }
-        else
-        {
-            cornerAABB.max().y() = (aabb_.max().y() + aabb_.min().y()) * 0.5f;
-        }
-
-        if (i_ & 4)
-        {
-            cornerAABB.min().z() = (aabb_.max().z() + aabb_.min().z()) * 0.5f;
-        }
-        else
-        {
-            cornerAABB.max().z() = (aabb_.max().z() + aabb_.min().z()) * 0.5f;
+            if (i_ & (1 << d))
+            {
+                cornerAABB.min().coeffRef(d) = (aabb_.max().coeff(d) + aabb_.min().coeff(d)) * 0.5f;
+            }
+            else
+            {
+                cornerAABB.max().coeffRef(d) = (aabb_.max().coeff(d) + aabb_.min().coeff(d)) * 0.5f;
+            }
         }
 
         return cornerAABB;

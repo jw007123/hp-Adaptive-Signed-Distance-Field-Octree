@@ -4,13 +4,13 @@ namespace SDF
 {
     Config::Config()
     {
-        targetErrorThreshold       = pow(10, -10);
-        nearnessWeighting.type     = NearnessWeighting::Type::None;
-        continuity.enforce         = true;
-        continuity.strength        = 8.0;
-        threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
-        root                       = Eigen::AlignedBox3f(Eigen::Vector3f(-0.5, -0.5, -0.5), Eigen::Vector3f(0.5, 0.5, 0.5));
-        enableLogging              = false;
+        targetErrorThreshold   = pow(10, -10);
+        nearnessWeighting.type = NearnessWeighting::Type::None;
+        continuity.enforce     = true;
+        continuity.strength    = 8.0;
+        threadCount            = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+        root                   = Eigen::AlignedBox3f(Eigen::Vector3f(-0.5, -0.5, -0.5), Eigen::Vector3f(0.5, 0.5, 0.5));
+        enableLogging          = false;
     }
 
 

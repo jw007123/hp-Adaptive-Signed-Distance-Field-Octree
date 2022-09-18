@@ -7,7 +7,7 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "../Literals.h"
+#include "Literals.h"
 
 #include "Mesh.h"
 #include "Utility.h"
@@ -25,17 +25,18 @@ namespace Meshing
         void Clear();
 
         /// Creates a BVH from a set of triangle indices and vertices
-        void Create(const Mesh& mesh_);
-
-        /// Is true if the BVH is in a valid internal state
-        const bool HasValidState() const { return hasValidState; }
+        bool Create(const Mesh& mesh_);
 
         /// Returns the closest triangle idx (from triIndices_ in Create) to pt_
         ClosestSimplexInfo ClosestTriangleToPt(const Eigen::Vector3f& pt_, u32& closestTriIdx_, const u32 threadIdx_ = 0) const;
 
     private:
-        static constexpr u8 IS_LEAF_TRUE  = 1;
-        static constexpr u8 IS_LEAF_FALSE = 0;
+        struct ParentInfo
+        {
+            u32                 childIdx;
+            Eigen::AlignedBox3f parentAABB;
+            bool                available;
+        };
 
         struct Node
         {
@@ -56,13 +57,6 @@ namespace Meshing
         };
         std::vector<Node> nodes;
 
-        struct ParentInfo
-        {
-            u32                 childIdx;
-            Eigen::AlignedBox3f parentAABB;
-            bool                available;
-        };
-
         /*
             Priority queue for traversal. The assumption is that if we follow paths with the closest/best 
             distances first, we can skip more pointless traversal through the tree later on.
@@ -76,8 +70,7 @@ namespace Meshing
         };
         mutable std::vector<std::priority_queue<std::pair<u32, f32>, std::vector<std::pair<u32, f32>>, PriorityQueuePredicate>> traversalQueues;
 
-        const Mesh*      mesh;
-        bool             hasValidState;
+        const Mesh* mesh;
 
         /// Creates the lowest level leaves of the BVH
         void CreateLeaves(std::vector<ParentInfo>& parents_);

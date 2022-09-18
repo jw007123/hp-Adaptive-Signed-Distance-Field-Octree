@@ -4,7 +4,7 @@ namespace Meshing
 {
     Mesh::Mesh()
     {
-        hasValidState = false;
+
     }
 
 
@@ -16,8 +16,6 @@ namespace Meshing
 
     void Mesh::Clear()
     {
-        hasValidState = false;
-
         halfEdges.clear();
         triIndices.clear();
         vertexNormals.clear();
@@ -25,7 +23,7 @@ namespace Meshing
     }
 
 
-    void Mesh::CreateFromObj(const char* objPath_)
+    bool Mesh::CreateFromObj(const char* objPath_)
     {
         Clear();
 
@@ -45,17 +43,12 @@ namespace Meshing
         triIndices.resize(objTriIndices.size());
         memcpy(triIndices.data(), objTriIndices.data(), sizeof(u32) * objTriIndices.size());
 
-        hasValidState = CreateHalfEdges();
+        return CreateHalfEdges();
     }
 
 
     f32 Mesh::SignedDistanceAtPt(const Eigen::Vector3f& pt_)
     {
-        if (!hasValidState)
-        {
-            return std::numeric_limits<f32>::max();
-        }
-
         u32 closestTriIdx                    = -1;
         const ClosestSimplexInfo simplexInfo = ClosestTriangleToPt(pt_, closestTriIdx);
         const Eigen::Vector3f pseudoNormal   = PseudoNormal(closestTriIdx, simplexInfo.simplex, simplexInfo.simplexIdx);
@@ -68,11 +61,6 @@ namespace Meshing
 
     f32 Mesh::SignedDistanceAtPt(const Eigen::Vector3f& pt_, const BVH& bvh_, const u32 threadIdx_)
     {
-        if (!hasValidState)
-        {
-            return std::numeric_limits<f32>::max();
-        }
-
         u32 closestTriIdx                    = -1;
         const ClosestSimplexInfo simplexInfo = bvh_.ClosestTriangleToPt(pt_, closestTriIdx, threadIdx_);
         const Eigen::Vector3f pseudoNormal   = PseudoNormal(closestTriIdx, simplexInfo.simplex, simplexInfo.simplexIdx);
@@ -245,12 +233,8 @@ namespace Meshing
             curTri[1] = vertices[triIndices[curTriIdx * 3 + 1]];
             curTri[2] = vertices[triIndices[curTriIdx * 3 + 2]];
 
-            const u32 hemod3  = curHEIdx % 3;
-            const u32 he1mod3 = (curHEIdx + 1) % 3;
-            const u32 he2mod3 = (curHEIdx + 2) % 3;
-
-            const Eigen::Vector3f ab = curTri[he1mod3] - curTri[hemod3];
-            const Eigen::Vector3f ac = curTri[he2mod3] - curTri[hemod3];
+            const Eigen::Vector3f ab = curTri[(curHEIdx + 1) % 3] - curTri[curHEIdx % 3];
+            const Eigen::Vector3f ac = curTri[(curHEIdx + 2) % 3] - curTri[curHEIdx % 3];
             const f32 ang            = acosf(ab.normalized().dot(ac.normalized()));
 
             n += PseudoNormalFace(curTriIdx) * ang;

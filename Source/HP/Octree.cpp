@@ -316,14 +316,14 @@ namespace SDF
             return F_(pt_.cwiseProduct(rootBounds) + centre, threadIdx_);
         };
 		
-		// Create root and create coarse refinement 
+		// Create root and uniformly subdivide tree
 		CreateRoot();
 		UniformlyRefine();
 
 		// Main algo loop
 		RunBuildThreadPool();
 
-		// Optimise mem layout
+		// Improve mem layout
 		const u32 nCoeffs = ReallocCoeffs();
 
 		// Perform continuity post-process
@@ -395,7 +395,7 @@ namespace SDF
 		Clear();
 
 		const u32 nCoeffs = *((u32*)octBlock_.ptr);
-		coeffStore          = (f64*)malloc(sizeof(f64) * nCoeffs);
+		coeffStore        = (f64*)malloc(sizeof(f64) * nCoeffs);
 		memcpy(coeffStore, (u8*)octBlock_.ptr + sizeof(u32), sizeof(f64) * nCoeffs);
 
 		const u32 nNodes = *((u32*)((u8*)octBlock_.ptr + sizeof(u32) + sizeof(f64) * nCoeffs));
@@ -541,19 +541,19 @@ namespace SDF
 			// Decide whether to refine in H or P
 			const u32 nodeDepth   = newJob.node.depth;
 			const u32 basisDegree = newJob.node.basis.degree;
-			const bool refineP      = basisDegree < (BASIS_MAX_DEGREE - 1) && (nodeDepth == TREE_MAX_DEPTH || pImprovement > hImprovement);
-			const bool refineH      = nodeDepth < TREE_MAX_DEPTH && !refineP;
+			const bool refineP    = basisDegree < (BASIS_MAX_DEGREE - 1) && (nodeDepth == TREE_MAX_DEPTH || pImprovement > hImprovement);
+			const bool refineH    = nodeDepth < TREE_MAX_DEPTH && !refineP;
 
 			// Push to output queue
 			threadData_->outputQueueMutex->lock();
 			{
+                // Only free ptrs of bases that aren't going to be kept around
 				if (refineP)
 				{
 					for (u8 i = 0; i < 8; ++i)
 					{
                         if (hBases[i].coeffs != nullptr)
                         {
-                            // Coarse check
                             free(hBases[i].coeffs);
                         }
 					}
@@ -586,11 +586,11 @@ namespace SDF
 				}
                 else
                 {
+                    // Edge case if degree = MAX and depth = MAX
                     for (u8 i = 0; i < 8; ++i)
                     {
                         if (hBases[i].coeffs != nullptr)
                         {
-                            // Coarse check
                             free(hBases[i].coeffs);
                         }
                     }
@@ -626,7 +626,7 @@ namespace SDF
 			const u32 yIdx = (pt.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
 			const u32 zIdx = (pt.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
-			const u32 childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
+			const u32 childIdx   = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
 			if (curChild.basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
@@ -649,8 +649,8 @@ namespace SDF
     bool Octree::QueryRay(const Ray& ray_, const f64 tMax_, f64& t_) const
     {
         constexpr u32 MAX_STEPS = 200;
-        constexpr f64 eps         = 0.0001;
-        constexpr f64 minStep     = 0.0001;
+        constexpr f64 eps       = 0.0001;
+        constexpr f64 minStep   = 0.0001;
 
         // Move to unit cube
         Ray ray((ray_.origin - configRootCentre).cwiseProduct(configRootInvSizes), ray_.direction);
@@ -713,7 +713,7 @@ namespace SDF
 			const u32 yIdx = (pt.y() >= (aabbMin.y() + curNodeAABBHalf)) << 1;
 			const u32 zIdx = (pt.z() >= (aabbMin.z() + curNodeAABBHalf)) << 2;
 
-			const u32 childIdx = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
+			const u32 childIdx   = nodes[curNodeIdx].childIdx + xIdx + yIdx + zIdx;
 			const Node& curChild = nodes[childIdx];
 			if (curChild.basis.degree != (BASIS_MAX_DEGREE + 1))
 			{
@@ -747,7 +747,7 @@ namespace SDF
 
 	f64 Octree::EstimateHImprovement(const BuildThreadPool::Input& inputData_, Node::Basis* hBases_, f64* hBasesErrors_, const u32 threadIdx_)
 	{
-        if (inputData_.nodeIdxAndErr.second == INITIAL_NODE_ERR)
+        if (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < DBL_EPSILON)
         {
             // Do nothing if we're in the coarse refinement stage
             return 0.0;
@@ -772,7 +772,7 @@ namespace SDF
 
 	f64 Octree::EstimatePImprovement(const BuildThreadPool::Input& inputData_, Node::Basis& pBasis_, f64& pBasisError_, const u32 threadIdx_)
 	{
-        const bool isCoarse  = (inputData_.nodeIdxAndErr.second == INITIAL_NODE_ERR);
+        const bool isCoarse  = (std::abs<f64>(inputData_.nodeIdxAndErr.second - INITIAL_NODE_ERR) < DBL_EPSILON);
 		const u8 basisDegree = inputData_.node.basis.degree;
 		const u8 nodeDepth   = inputData_.node.depth;
 
@@ -963,6 +963,7 @@ namespace SDF
 		// Determine mappings from aabb_ to unit cube
 		const Eigen::Vector3d aabbScale  = aabb_.sizes().cast<f64>() * 0.5;
 		const Eigen::Vector3d aabbCentre = aabb_.center().cast<f64>();
+        const f64 aabbScalesMult         = aabbScale.prod();
 
 		// Set coeffs to 0
 		memset(basis_.coeffs + startingIdx, 0, (endingIdx - startingIdx) * sizeof(f64));
@@ -977,18 +978,16 @@ namespace SDF
 					// Generate sample
 					const Eigen::Vector3d unitSample(LegendreRoots[i], LegendreRoots[j], LegendreRoots[k]);
 					const Eigen::Vector3d unitWeights(LegendreWeights[i], LegendreWeights[j], LegendreWeights[k]);
-					const Eigen::Vector3d aabbSample = unitSample.cwiseProduct(aabbScale) + aabbCentre;
 
 					// Evaluate F at this position
-					const f64 weightsMult    = unitWeights.prod();
-					const f64 normScalesMult = aabbScale.prod();
-					const f64 FaabSample     = normScalesMult * weightsMult * F(aabbSample, threadIdx_);
+                    const Eigen::Vector3d aabbSample = unitSample.cwiseProduct(aabbScale) + aabbCentre;
+					const f64 FaabSample             = aabbScalesMult * unitWeights.prod() * F(aabbSample, threadIdx_);
 
 					// Use this sample to continue calculating coeffs
 					for (u32 c = startingIdx; c < endingIdx; ++c)
 					{
 						f64 Lp = 1.0;
-						for (u32 p = 0; p < 3; ++p)
+						for (u8 p = 0; p < 3; ++p)
 						{
 							Lp *= LpX(BasisIndexValues[c][p], unitSample(p));
 							Lp *= NormalisedLengths[BasisIndexValues[c][p]][depth_];
@@ -1040,37 +1039,20 @@ namespace SDF
 
 	Eigen::AlignedBox3f Octree::CornerAABB(const Eigen::AlignedBox3f& aabb_, const u32 i_)
 	{
-		Eigen::AlignedBox3f cornerAABB = aabb_;
+        Eigen::AlignedBox3f cornerAABB = aabb_;
+        for (u8 d = 0; d < 3; ++d)
+        {
+            if (i_ & (1 << d))
+            {
+                cornerAABB.min().coeffRef(d) = (aabb_.max().coeff(d) + aabb_.min().coeff(d)) * 0.5f;
+            }
+            else
+            {
+                cornerAABB.max().coeffRef(d) = (aabb_.max().coeff(d) + aabb_.min().coeff(d)) * 0.5f;
+            }
+        }
 
-		if (i_ & 1)
-		{
-			cornerAABB.min().x() = (aabb_.max().x() + aabb_.min().x()) * 0.5f;
-		}
-		else
-		{
-			cornerAABB.max().x() = (aabb_.max().x() + aabb_.min().x()) * 0.5f;
-		}
-
-		if (i_ & 2)
-		{
-			cornerAABB.min().y() = (aabb_.max().y() + aabb_.min().y()) * 0.5f;
-		}
-		else
-		{
-			cornerAABB.max().y() = (aabb_.max().y() + aabb_.min().y()) * 0.5f;
-		}
-
-		if (i_ & 4)
-		{
-			cornerAABB.min().z() = (aabb_.max().z() + aabb_.min().z()) * 0.5f;
-		}
-		else
-		{
-			cornerAABB.max().z() = (aabb_.max().z() + aabb_.min().z()) * 0.5f;
-		}
-
-
-		return cornerAABB;
+        return cornerAABB;
 	}
 
 
@@ -1111,7 +1093,7 @@ namespace SDF
                 const f32 step = (viewArea_.max()(0) - viewArea_.min()(0)) / nSamples;
 				sampleLoc.x() += (j * step);
 				sampleLoc.y() += (i * step);
-				sampleLoc.z() = c_;
+				sampleLoc.z()  = c_;
 
 				// Update 
 				const f64 sdfVal = Query(sampleLoc);
@@ -1175,7 +1157,7 @@ namespace SDF
 
 		// Approximate F over aabb_ with MC
 		const u32 nSamples = 100;
-		f64 fIntegral = 0.0;
+		f64 fIntegral      = 0.0;
 		for (u32 i = 0; i < nSamples; ++i)
 		{
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
@@ -1196,7 +1178,7 @@ namespace SDF
 
 		// Approximate F over aabb_ with MC
 		const u32 nSamples = 100;
-		f64 fIntegral = 0.0;
+		f64 fIntegral      = 0.0;
 		for (u32 i = 0; i < nSamples; ++i)
 		{
 			fIntegral += FApprox(basis_, aabb_, aabb_.sample().cast<f64>(), depth_);
@@ -1228,7 +1210,7 @@ namespace SDF
 
 		// Determine shared face scale
 		const u32 depthDiff = nodeA.depth > nodeB.depth ? (nodeA.depth - nodeB.depth) : (nodeB.depth - nodeA.depth);
-		const f64 invDist = 1.0 / std::pow<f64>(2.0, depthDiff);
+		const f64 invDist   = 1.0 / std::pow<f64>(2.0, depthDiff);
 
 		// Determine shared face translation
 		Eigen::Vector3d invTranslation(Eigen::Vector3d::Zero());
@@ -1496,37 +1478,30 @@ namespace SDF
 
 	void Octree::NodeProc(const u32 nodeIdx_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
 	{
-		const Node& node = nodes[nodeIdx_];
+		const Node& node       = nodes[nodeIdx_];
 		const bool hasChildren = node.childIdx != -1;
 
 		if (hasChildren)
 		{
-			// Call NodeProc on all the children
-			for (u32 i = 0; i < 8; ++i)
-			{
-				NodeProc(node.childIdx + i, jobQueue_);
-			}
+            // Call NodeProc on all the children
+            for (u8 i = 0; i < 8; ++i)
+            {
+                NodeProc(node.childIdx + i, jobQueue_);
+            }
 
-			// Call FaceProc[X/Y/Z] on shared faces
-			FaceProcX(node.childIdx + 0, node.childIdx + 1, jobQueue_);
-			FaceProcX(node.childIdx + 2, node.childIdx + 3, jobQueue_);
-			FaceProcX(node.childIdx + 4, node.childIdx + 5, jobQueue_);
-			FaceProcX(node.childIdx + 6, node.childIdx + 7, jobQueue_);
-
-			FaceProcY(node.childIdx + 0, node.childIdx + 2, jobQueue_);
-			FaceProcY(node.childIdx + 1, node.childIdx + 3, jobQueue_);
-			FaceProcY(node.childIdx + 4, node.childIdx + 6, jobQueue_);
-			FaceProcY(node.childIdx + 5, node.childIdx + 7, jobQueue_);
-
-			FaceProcZ(node.childIdx + 0, node.childIdx + 4, jobQueue_);
-			FaceProcZ(node.childIdx + 1, node.childIdx + 5, jobQueue_);
-			FaceProcZ(node.childIdx + 2, node.childIdx + 6, jobQueue_);
-			FaceProcZ(node.childIdx + 3, node.childIdx + 7, jobQueue_);
+            // Call FaceProc[X_0, X_1, ..., X_N] on shared faces
+            for (u8 i = 0; i < 3; ++i)
+            {
+                for (u8 j = 0; j < 4; ++j)
+                {
+                    FaceProc(node.childIdx + SharedFaceLookup[i][j][0], node.childIdx + SharedFaceLookup[i][j][1], i, jobQueue_);
+                }
+            }
 		}
 	}
 
 
-	void Octree::FaceProcX(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
+	void Octree::FaceProc(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
 	{
 		const Node& nodeA       = nodes[nodeIdxA_];
 		const Node& nodeB       = nodes[nodeIdxB_];
@@ -1536,16 +1511,17 @@ namespace SDF
 		// Continue down if we aren't yet at leaves. Otherwise, calculate the integral between the leaf faces
 		if (aHasChildren || bHasChildren)
 		{
-			FaceProcX(aHasChildren ? nodeA.childIdx + 1: nodeIdxA_, bHasChildren ? nodeB.childIdx + 0: nodeIdxB_, jobQueue_);
-			FaceProcX(aHasChildren ? nodeA.childIdx + 3: nodeIdxA_, bHasChildren ? nodeB.childIdx + 2: nodeIdxB_, jobQueue_);
-			FaceProcX(aHasChildren ? nodeA.childIdx + 5: nodeIdxA_, bHasChildren ? nodeB.childIdx + 4: nodeIdxB_, jobQueue_);
-			FaceProcX(aHasChildren ? nodeA.childIdx + 7: nodeIdxA_, bHasChildren ? nodeB.childIdx + 6: nodeIdxB_, jobQueue_);
+            for (u8 i = 0; i < 4; ++i)
+            {
+                FaceProc(aHasChildren ? nodeA.childIdx + SharedFaceLookup[dim_][i][1] : nodeIdxA_,
+                         bHasChildren ? nodeB.childIdx + SharedFaceLookup[dim_][i][0] : nodeIdxB_, dim_, jobQueue_);
+            }
 		}
 		else
 		{
 			// Order nodes based on dim
-			const u32 nodeIdxA = nodes[nodeIdxA_].aabb.min()(0) < nodes[nodeIdxB_].aabb.min()(0) ? nodeIdxA_ : nodeIdxB_;
-			const u32 nodeIdxB = nodes[nodeIdxA_].aabb.min()(0) < nodes[nodeIdxB_].aabb.min()(0) ? nodeIdxB_ : nodeIdxA_;
+			const u32 nodeIdxA = nodes[nodeIdxA_].aabb.min()(dim_) < nodes[nodeIdxB_].aabb.min()(dim_) ? nodeIdxA_ : nodeIdxB_;
+			const u32 nodeIdxB = nodes[nodeIdxA_].aabb.min()(dim_) < nodes[nodeIdxB_].aabb.min()(dim_) ? nodeIdxB_ : nodeIdxA_;
 
 			// Determine if we've done this integral before
 			if (procMap.find(std::pair<u32, u32>(nodeIdxA, nodeIdxB)) != procMap.end())
@@ -1560,87 +1536,7 @@ namespace SDF
 			// New job is unique
 			ContinuityThreadPool::Input newJob;
 			newJob.nodeIdxs = std::pair<u32, u32>(nodeIdxA, nodeIdxB);
-			newJob.dim      = 0;
-			jobQueue_.push(newJob);
-		}
-	}
-
-
-	void Octree::FaceProcY(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
-	{
-		const Node& nodeA       = nodes[nodeIdxA_];
-		const Node& nodeB       = nodes[nodeIdxB_];
-		const bool aHasChildren = nodeA.childIdx != -1;
-		const bool bHasChildren = nodeB.childIdx != -1;
-
-		// Continue down if we aren't yet at leaves. Otherwise, calculate the integral between the leaf faces
-		if (aHasChildren || bHasChildren)
-		{
-			FaceProcY(aHasChildren ? nodeA.childIdx + 2 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 0 : nodeIdxB_, jobQueue_);
-			FaceProcY(aHasChildren ? nodeA.childIdx + 3 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 1 : nodeIdxB_, jobQueue_);
-			FaceProcY(aHasChildren ? nodeA.childIdx + 6 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 4 : nodeIdxB_, jobQueue_);
-			FaceProcY(aHasChildren ? nodeA.childIdx + 7 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 5 : nodeIdxB_, jobQueue_);
-		}
-		else
-		{
-			// Order nodes based on dim
-			const u32 nodeIdxA = nodes[nodeIdxA_].aabb.min()(1) < nodes[nodeIdxB_].aabb.min()(1) ? nodeIdxA_ : nodeIdxB_;
-			const u32 nodeIdxB = nodes[nodeIdxA_].aabb.min()(1) < nodes[nodeIdxB_].aabb.min()(1) ? nodeIdxB_ : nodeIdxA_;
-
-			// Determine if we've done this integral before
-			if (procMap.find(std::pair<u32, u32>(nodeIdxA, nodeIdxB)) != procMap.end())
-			{
-				return;
-			}
-			else
-			{
-				procMap.emplace(std::pair<u32, u32>(nodeIdxA, nodeIdxB), true);
-			}
-
-			// New job is unique
-			ContinuityThreadPool::Input newJob;
-			newJob.nodeIdxs = std::pair<u32, u32>(nodeIdxA, nodeIdxB);
-			newJob.dim      = 1;
-			jobQueue_.push(newJob);
-		}
-	}
-
-
-	void Octree::FaceProcZ(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_)
-	{
-		const Node& nodeA       = nodes[nodeIdxA_];
-		const Node& nodeB       = nodes[nodeIdxB_];
-		const bool aHasChildren = nodeA.childIdx != -1;
-		const bool bHasChildren = nodeB.childIdx != -1;
-
-		// Continue down if we aren't yet at leaves. Otherwise, calculate the integral between the leaf faces
-		if (aHasChildren || bHasChildren)
-		{
-			FaceProcZ(aHasChildren ? nodeA.childIdx + 4 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 0 : nodeIdxB_, jobQueue_);
-			FaceProcZ(aHasChildren ? nodeA.childIdx + 5 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 1 : nodeIdxB_, jobQueue_);
-			FaceProcZ(aHasChildren ? nodeA.childIdx + 6 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 2 : nodeIdxB_, jobQueue_);
-			FaceProcZ(aHasChildren ? nodeA.childIdx + 7 : nodeIdxA_, bHasChildren ? nodeB.childIdx + 3 : nodeIdxB_, jobQueue_);
-		}
-		else
-		{
-			// Order nodes based on dim
-			const u32 nodeIdxA = nodes[nodeIdxA_].aabb.min()(2) < nodes[nodeIdxB_].aabb.min()(2) ? nodeIdxA_ : nodeIdxB_;
-			const u32 nodeIdxB = nodes[nodeIdxA_].aabb.min()(2) < nodes[nodeIdxB_].aabb.min()(2) ? nodeIdxB_ : nodeIdxA_;
-
-			// Determine if we've done this integral before
-			if (procMap.find(std::pair<u32, u32>(nodeIdxA, nodeIdxB)) != procMap.end())
-			{
-				return;
-			}
-			else
-			{
-				procMap.emplace(std::pair<u32, u32>(nodeIdxA, nodeIdxB), true);
-			}
-
-			// New job is unique
-			ContinuityThreadPool::Input newJob;
-			newJob.nodeIdxs = std::pair<u32, u32>(nodeIdxA, nodeIdxB);
-			newJob.dim      = 2;
+			newJob.dim      = dim_;
 			jobQueue_.push(newJob);
 		}
 	}
@@ -1779,6 +1675,7 @@ namespace SDF
 		Eigen::setNbThreads((i32)config.threadCount);
 
 		// Solve system and copy new coeffs over
+        // NOTE: Eigen's AMDOrdering bugged (and MPL2). Crash deep in Eigen even though matrix is symmetric
 		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper,
         Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);
 

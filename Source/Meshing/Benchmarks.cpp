@@ -67,7 +67,7 @@ namespace Meshing
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
         {
             ObjParser objParser;
-            objParser.Load("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+            objParser.Load(".\\Resources\\Ramesses.obj");
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
@@ -81,7 +81,7 @@ namespace Meshing
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
         {
             Mesh objMesh;
-            objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+            objMesh.CreateFromObj(".\\Ramesses.obj");
         }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
@@ -93,7 +93,7 @@ namespace Meshing
     f64 Benchmarks::BenchmarkBVHFromMesh()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        objMesh.CreateFromObj(".\\Resources\\Ramesses.obj");
 
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
         {
@@ -110,7 +110,7 @@ namespace Meshing
     f64 Benchmarks::BenchmarkBVHQuerying()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        objMesh.CreateFromObj(".\\Resources\\Ramesses.obj");
         const Eigen::AlignedBox3f meshRoot = objMesh.CalculateMeshAABB();
 
         BVH objBVH;
@@ -134,7 +134,7 @@ namespace Meshing
     f64 Benchmarks::BenchmarkNaiveMeshQuerying()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
+        objMesh.CreateFromObj(".\\Resources\\Ramesses.obj");
         const Eigen::AlignedBox3f meshRoot = objMesh.CalculateMeshAABB();
 
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();

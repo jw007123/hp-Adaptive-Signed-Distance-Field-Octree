@@ -19,6 +19,8 @@
 #endif
 
 #include "Literals.h"
+#include "MemoryBlock.h"
+
 #include "Ray.h"
 #include "Utility.h"
 #include "Legendre.h"
@@ -26,7 +28,6 @@
 #include "Config.h"
 #include "BuildThreadPool.h"
 #include "ContinuityThreadPool.h"
-#include "MemoryBlock.h"
 
 namespace SDF
 {
@@ -159,9 +160,7 @@ namespace SDF
 
 		/// Proc functions from https://www.cs.rice.edu/~jwarren/papers/dualcontour.pdf
 		void NodeProc(const u32 nodeIdx_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcX(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcY(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
-		void FaceProcZ(const u32 nodeIdxA_, const u32 nodeIdxB_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
+		void FaceProc(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::queue<ContinuityThreadPool::Input>& jobQueue_);
 
 		/// Fills a triplet array for the sparse matrix up via another threadpool (if nThreads > 1)
 		void RunContinuityThreadPool(std::vector<Eigen::Triplet<f64>>& integralMatrixTriplets_);

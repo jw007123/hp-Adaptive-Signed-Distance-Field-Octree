@@ -85,18 +85,14 @@ namespace Meshing
     bool UnitTests::TestObjParsing()
     {
         ObjParser objParser;
-        objParser.Load("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
-
-        return objParser.HasValidData();
+        return objParser.Load(".\\Resources\\Ramesses.obj");
     }
 
 
     bool UnitTests::TestMeshCreation()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
-
-        return objMesh.HasValidState();
+        return objMesh.CreateFromObj(".\\Resources\\Ramesses.obj");
     }
 
 
@@ -136,15 +132,13 @@ namespace Meshing
     bool UnitTests::TestBVHBuilding()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
-        if (!objMesh.HasValidState())
+        if (!objMesh.CreateFromObj(".\\Resources\\Ramesses.obj"))
         {
             return false;
         }
 
         BVH objBVH;
-        objBVH.Create(objMesh);
-        if (!objBVH.HasValidState())
+        if (!objBVH.Create(objMesh))
         {
             return false;
         }
@@ -156,15 +150,13 @@ namespace Meshing
     bool UnitTests::TestBVHQuerying()
     {
         Mesh objMesh;
-        objMesh.CreateFromObj("C:\\VS2017Projects\\SDF\\hp-Adaptive-Signed-Distance-Field-Octree\\Resources\\Ramesses.obj");
-        if (!objMesh.HasValidState())
+        if (!objMesh.CreateFromObj(".\\Resources\\Ramesses.obj"))
         {
             return false;
         }
 
         BVH objBVH;
-        objBVH.Create(objMesh);
-        if (!objBVH.HasValidState())
+        if (!objBVH.Create(objMesh))
         {
             return false;
         }

@@ -3,14 +3,15 @@
 #include <functional>
 #include <queue>
 #include <mutex>
+#include <atomic>
 
 #include <malloc.h>
-#include <atomic>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
 #include "Literals.h"
+
 #include "Node.h"
 #include "Config.h"
 
@@ -40,9 +41,9 @@ namespace SDF
 			// If basisType == H...
 			u8 childIdx;
 
-            u32   nodeIdx;
-			f64   initialErr;
-			f64   newErr;
+            u32 nodeIdx;
+			f64 initialErr;
+			f64 newErr;
 		};
 
 		struct InitialData
@@ -62,7 +63,6 @@ namespace SDF
 		~BuildThreadPool();
 
 		void StartThreads(const InitialData* const initialData_, Octree* const octree_);
-
 		void StopThreads();
 
 	private:

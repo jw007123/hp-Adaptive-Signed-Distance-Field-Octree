@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Literals.h"
+#include "Literals.h"
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"

@@ -172,6 +172,8 @@ namespace SDF
         {
             const Eigen::Vector3d sample(box.sample());
 
+            // NOTE: Can't really do a unit test for normals as the normal is undefined at the SDF boundary...
+            // i.e. we can always pick a point on the SDF where the ||approximated normal - 'true' normal|| > tol
             Eigen::Vector3d octGrad;
             const f64 octS = hpOctree.QueryWithGradient(sample, octGrad);
         }
@@ -206,9 +208,9 @@ namespace SDF
         hpOctree.Create(hpConfig, SphereFunc);
 
         const std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
-
-        hpOctree.UnionSDF(OtherSphereFunc);
-
+        {
+            hpOctree.UnionSDF(OtherSphereFunc);
+        }
         const std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
         const std::chrono::duration<f64> timeDiff                                 = endTime - startTime;
 

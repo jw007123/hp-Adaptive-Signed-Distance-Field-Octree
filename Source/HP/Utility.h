@@ -170,4 +170,40 @@ namespace SDF
         u32 values[LegendreCoefficientCountCalc::Size()][3];
 	};
 	constexpr const u32(&BasisIndexValues)[LegendreCoefficientCountCalc::Size()][3] = BasisIndexValuesCalc().values;
+
+    /*
+        Stores adjacent face pairs used during the continuity correction. The lookup table is additive (i.e. the lookup table for 
+		dim_{n - 1} is a subset of the lookup table for dim_{n}) so we iterate through dims 0, 1 and 2 to get the final set.
+    */
+   struct SharedFaceLookupCalc
+	{
+		constexpr SharedFaceLookupCalc() : values()
+		{
+            constexpr u8 ourDim = 3;
+
+			for (u8 i = 0; i < ourDim; ++i)
+			{
+				// Axis = 0, MAX_DIM = 3 => modVal1 = 1, modVal = 2, valsPerMod = 4
+				u8 valueIdxs[2] = { 0 };
+				u8 modVal1		= (1 << i);
+				u8 modVal       = (1 << (i + 1));	
+				u8 valsPerMod   = (1 << (ourDim - 1 - i));
+
+				for (u8 j = 0; j < valsPerMod; ++j)
+				{
+					for (u8 k = 0; k < modVal1; ++k)
+					{
+						values[i][valueIdxs[0]++][0] = k + j * modVal;
+					}
+					
+					for (u8 k = modVal1; k < modVal; ++k)
+					{
+						values[i][valueIdxs[1]++][1] = k + j * modVal;
+					}
+				}
+			}
+		}
+		usize values[3][4][2];
+	};
+	constexpr const usize(&SharedFaceLookup)[3][4][2] = SharedFaceLookupCalc().values;
 }

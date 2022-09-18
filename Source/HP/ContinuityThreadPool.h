@@ -2,15 +2,16 @@
 
 #include <queue>
 #include <mutex>
+#include <atomic>
 
 #include <malloc.h>
-#include <atomic>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
 #include "Literals.h"
+
 #include "Config.h"
 
 namespace SDF
@@ -42,7 +43,6 @@ namespace SDF
 		~ContinuityThreadPool();
 
 		void StartThreads(InitialData* const initialData_, Octree* const octree_);
-
 		void StopThreads();
 
 	private:

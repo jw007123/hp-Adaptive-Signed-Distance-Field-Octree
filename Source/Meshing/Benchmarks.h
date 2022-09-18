@@ -1,5 +1,5 @@
 #pragma once
-#include "../Literals.h"
+#include "Literals.h"
 
 #include "ObjParser.h"
 #include "BVH.h"
@@ -32,7 +32,7 @@ namespace Meshing
             "1.6M tri .obj Mesh Creation",
             "1.6M tri Mesh -> BVH",
             "1.6M tri BVH 10K Queries",
-            "1.6M tri Mesh O(n) 100 Queries"
+            "1.6M tri Mesh 100 Queries"
         };
 
         f64 BenchmarkObjFileParsing();

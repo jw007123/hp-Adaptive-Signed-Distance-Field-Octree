@@ -96,7 +96,7 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.targetErrorThreshold       = pow(10, -8);
 		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce         = false;
@@ -130,7 +130,7 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.targetErrorThreshold       = pow(10, -8);
 		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce         = true;
@@ -165,7 +165,7 @@ namespace SDF
 		};
 
 		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -10);
+		hpConfig.targetErrorThreshold       = pow(10, -8);
 		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
 		hpConfig.nearnessWeighting.strength = 3.0;
 		hpConfig.continuity.enforce         = true;
@@ -207,7 +207,7 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold       = pow(10, -10);
+        hpConfig.targetErrorThreshold       = pow(10, -8);
         hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
         hpConfig.nearnessWeighting.strength = 3.0;
         hpConfig.continuity.enforce         = false;
@@ -335,11 +335,11 @@ namespace SDF
         };
 
         Config hpConfig;
-        hpConfig.targetErrorThreshold       = pow(10, -8);
-        hpConfig.continuity.enforce         = true;
-        hpConfig.continuity.strength        = 8.0;
-        hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
-        hpConfig.root                       = Eigen::AlignedBox3f(Eigen::Vector3f(-0.25, -0.25, -0.25), Eigen::Vector3f(5, 5, 5));
+        hpConfig.targetErrorThreshold = pow(10, -8);
+        hpConfig.continuity.enforce   = true;
+        hpConfig.continuity.strength  = 8.0;
+        hpConfig.threadCount          = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
+        hpConfig.root                 = Eigen::AlignedBox3f(Eigen::Vector3f(-0.25, -0.25, -0.25), Eigen::Vector3f(5, 5, 5));
 
         Octree hpOctree;
         hpOctree.Create(hpConfig, SphereFunc);

@@ -6,7 +6,7 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "../Literals.h"
+#include "Literals.h"
 
 namespace Meshing
 {
@@ -31,15 +31,10 @@ namespace Meshing
         /// Finds and returns the (approximate) nearest point and its data 
         std::pair<Eigen::Vector3f, u32> NearestPoint(const Eigen::Vector3f& pt_, const f32 maxDistance_) const;
 
-        /// Is true if the mesh is in a valid internal state
-        const bool HasValidState() const { return hasValidState; }
-
     private:
         typedef std::pair<Eigen::Vector3f, u32> TYPE;
 
         static constexpr u8  LEAF_NODE_MAX_POINTS = 25;
-        static constexpr u8  IS_LEAF_TRUE         = 1;
-        static constexpr u8  IS_LEAF_FALSE        = 0;
         static constexpr u32 TYPE_SZ              = sizeof(TYPE);
 
         struct Node
@@ -68,8 +63,6 @@ namespace Meshing
             }
         };
         mutable std::priority_queue<std::pair<u32, f32>, std::vector<std::pair<u32, f32>>, PriorityQueuePredicate> traversalQueue;
-
-        bool hasValidState;
 
         /// Finds the idx and parent idxs of the node that contains pt_ 
         std::pair<u32, u32> FindLeaf(const Eigen::Vector3f& pt_) const;

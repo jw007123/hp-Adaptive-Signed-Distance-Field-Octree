@@ -10,7 +10,6 @@ External/stb-master/
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch

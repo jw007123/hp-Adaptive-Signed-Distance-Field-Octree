@@ -18,8 +18,8 @@ namespace SDF
 		{
 			enum Type : u8
 			{
-				None = 0,
-				Polynomial = 1,
+				None        = 0,
+				Polynomial  = 1,
 				Exponential = 2
 			} type;
 

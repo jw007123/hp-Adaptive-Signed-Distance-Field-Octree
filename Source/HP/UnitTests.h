@@ -35,15 +35,10 @@ namespace SDF
 		};
 
 		bool TestOctreeCreation();
-
 		bool TestOctreeContinuity();
-		
 		bool TestOctreeSerialisation();
-
         bool TestOctreeCopying();
-
         bool TestOctreeSDFOperations();
-
         bool TestOctreeCustomDomains();
 	};
 }

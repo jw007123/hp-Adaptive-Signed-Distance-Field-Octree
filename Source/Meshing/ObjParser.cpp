@@ -4,7 +4,6 @@ namespace Meshing
 {
     ObjParser::ObjParser()
     {
-        hasValidData = false;
         memset(vertInfoFlags, 0, sizeof(vertInfoFlags));
     }
 
@@ -15,7 +14,7 @@ namespace Meshing
     }
 
 
-    void ObjParser::Load(const char* objPath_)
+    bool ObjParser::Load(const char* objPath_)
     {
         Clear();
 
@@ -38,13 +37,12 @@ namespace Meshing
         }
 
         // Everything worked?
-        hasValidData = vertices.size() && triIndices.size() && vertexNormals.size();
+        return (vertices.size() && triIndices.size() && vertexNormals.size());
     }
 
 
     void ObjParser::Clear()
     {
-        hasValidData = false;
         memset(vertInfoFlags, 0, sizeof(vertInfoFlags));
 
         vertices.clear();

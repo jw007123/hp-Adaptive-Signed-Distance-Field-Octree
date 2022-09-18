@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Literals.h"
+
 #include "Octree.h"
 
 namespace SDF
@@ -33,13 +35,9 @@ namespace SDF
         };
 
         f64 BenchmarkOctreeCreation();
-
         f64 BenchmarkOctreeContinuity();
-
         f64 BenchmarkOctreeDistanceQuerying();
-
         f64 BenchmarkOctreeNormalQuerying();
-
         f64 BenchmarkOctreeSDFOperations();
     };
 }

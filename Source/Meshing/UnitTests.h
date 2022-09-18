@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Literals.h"
+
 #include "ObjParser.h"
 #include "BVH.h"
 #include "Mesh.h"

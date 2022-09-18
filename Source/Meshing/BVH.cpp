@@ -4,7 +4,7 @@ namespace Meshing
 {
     BVH::Node::Node()
     {
-        isLeaf   = IS_LEAF_TRUE;
+        isLeaf   = true;
         childIdx = -1;
     }
 
@@ -17,8 +17,7 @@ namespace Meshing
 
     BVH::BVH()
     {
-        hasValidState = false;
-        mesh          = nullptr;
+        mesh = nullptr;
     }
 
 
@@ -29,8 +28,7 @@ namespace Meshing
 
     void BVH::Clear()
     {
-        hasValidState = false;
-        mesh          = nullptr;
+        mesh = nullptr;
 
         nodes.clear();
     }
@@ -205,12 +203,12 @@ namespace Meshing
             Node aParentNode;
             aParentNode.aabb     = a;
             aParentNode.childIdx = parents_[aIdx].childIdx;
-            aParentNode.isLeaf   = IS_LEAF_FALSE;
+            aParentNode.isLeaf   = false;
             nodes.push_back(aParentNode);
             Node bParentNode;
             bParentNode.aabb     = b;
             bParentNode.childIdx = parents_[bIdx].childIdx;
-            bParentNode.isLeaf   = IS_LEAF_FALSE;
+            bParentNode.isLeaf   = false;
             nodes.push_back(bParentNode);
 
             // Mark nodes as in BVH
@@ -227,7 +225,7 @@ namespace Meshing
     }
 
 
-    void BVH::Create(const Mesh& mesh_)
+    bool BVH::Create(const Mesh& mesh_)
     {
         Clear();
 
@@ -250,7 +248,7 @@ namespace Meshing
             if (parentIdxs.size() == 1)
             {
                 // Done
-                nodes[0].isLeaf   = IS_LEAF_FALSE;
+                nodes[0].isLeaf   = false;
                 nodes[0].childIdx = (u32)nodes.size() - 2;
                 break;
             }
@@ -268,14 +266,14 @@ namespace Meshing
         {
             traversalQueues.push_back({});
         }
-
-        hasValidState = true;
+        
+        return true;
     }
 
 
     ClosestSimplexInfo BVH::ClosestTriangleToPt(const Eigen::Vector3f& pt_, u32& closestTriIdx_, const u32 threadIdx_) const
     {
-        if (!hasValidState)
+        if (!nodes.size())
         {
             // Your time is just as important as mine
             assert(0);
@@ -321,7 +319,7 @@ namespace Meshing
                     continue;
                 }
 
-                if (childNode.isLeaf == IS_LEAF_TRUE)
+                if (childNode.isLeaf)
                 {
                     // Test against triangle in leaf and potentially update bestDistance
                     const u32 t = 3 * childNode.triIdx;

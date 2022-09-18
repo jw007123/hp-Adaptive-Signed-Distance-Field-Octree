@@ -23,9 +23,9 @@ namespace SDF
             aabb_.max()
         };
 
-        a_.x() = (bounds[sign.x()].x() - origin.x()) * invDirection.x();
+        a_.x() = (bounds[sign.x()].x()     - origin.x()) * invDirection.x();
         b_.x() = (bounds[1 - sign.x()].x() - origin.x()) * invDirection.x();
-        a_.y() = (bounds[sign.y()].y() - origin.y()) * invDirection.y();
+        a_.y() = (bounds[sign.y()].y()     - origin.y()) * invDirection.y();
         b_.y() = (bounds[1 - sign.y()].y() - origin.y()) * invDirection.y();
 
         if ((a_.x() > b_.y()) || (a_.y() > b_.x()))
@@ -43,7 +43,7 @@ namespace SDF
             b_.x() = b_.y();
         }
 
-        a_.z() = (bounds[sign.z()].z() - origin.z()) * invDirection.z();
+        a_.z() = (bounds[sign.z()].z()     - origin.z()) * invDirection.z();
         b_.z() = (bounds[1 - sign.z()].z() - origin.z()) * invDirection.z();
 
         if ((a_.x() > b_.z()) || (a_.z() > b_.x()))

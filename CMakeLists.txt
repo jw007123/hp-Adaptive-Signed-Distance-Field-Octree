@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 3.0)
+# CMake setup
+cmake_minimum_required(VERSION 3.11)
+set(${CMAKE_CURRENT_BINARY_DIR} "Binaries")
 
+# Project setup
 project(hpAdaptiveSDF VERSION 1.0)
+add_subdirectory("Source/HP")
+add_subdirectory("Source/Meshing")
 
 # C++11
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # OpenMP for Eigen
@@ -14,11 +19,12 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-# Code includes
+include_directories("Source/Utility")
 include_directories("External/eigen-master")
 include_directories("External/stb-master")
-add_subdirectory("Source/HP")
-add_subdirectory("Source/Meshing")
+
+# .obj resources
+file(COPY Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add exe
-add_executable(Example "Source/Main.cpp")
+add_executable(Tests "Source/Main.cpp")
