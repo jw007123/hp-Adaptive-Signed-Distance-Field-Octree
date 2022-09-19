@@ -15,10 +15,6 @@
 #include "Eigen/Sparse"
 
 #define HAS_STB 1
-#if HAS_STB
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-#endif
 
 #include "Utility/Literals.h"
 #include "Utility/MemoryBlock.h"

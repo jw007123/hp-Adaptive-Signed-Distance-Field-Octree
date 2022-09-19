@@ -1,4 +1,4 @@
-#include "HP/UnitTests.h"
+#include "HPUnitTests.h"
 
 namespace SDF
 {

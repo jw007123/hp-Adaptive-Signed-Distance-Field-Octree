@@ -1,4 +1,4 @@
-#include "HP/Benchmarks.h"
+#include "HPBenchmarks.h"
 
 namespace SDF
 {

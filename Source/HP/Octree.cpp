@@ -1,5 +1,10 @@
 #include "HP/Octree.h"
 
+#if HAS_STB
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+#endif
+
 namespace SDF
 {
 	Octree::Octree()
@@ -1245,6 +1250,13 @@ namespace SDF
 
 	void Octree::EvaluateSharedFaceIntegralNumerically(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_)
 	{
+        u8 Mod3Lookup[3][3] =
+        {
+            {0, 1, 2},
+            {1, 2, 0},
+            {2, 0, 1}
+        };
+
         using StorageIndex = Eigen::SparseMatrix<f64>::StorageIndex;
 
 		const Node& nodeA = nodes[nodeIdxA_];
@@ -1447,6 +1459,13 @@ namespace SDF
 
 	void Octree::EvaluateSharedFaceIntegralAnalytically(const u32 nodeIdxA_, const u32 nodeIdxB_, const u8 dim_, std::vector<Eigen::Triplet<f64>>& matTriplets_)
 	{
+        u8 Mod3Lookup[3][3] =
+        {
+            {0, 1, 2},
+            {1, 2, 0},
+            {2, 0, 1}
+        };
+
         using StorageIndex = Eigen::SparseMatrix<f64>::StorageIndex;
 
 		const Node& nodeA = nodes[nodeIdxA_];

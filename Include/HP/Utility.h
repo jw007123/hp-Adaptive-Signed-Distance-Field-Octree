@@ -37,16 +37,6 @@ namespace SDF
 	}
 
 	/*
-		Mod3Lookup[i][j] = (i + j) % 3. Used to determine which bits of a node to use when integrating over shared faces.
-	*/
-	u8 Mod3Lookup[3][3] =
-	{
-		{0, 1, 2},
-		{1, 2, 0},
-		{2, 0, 1}
-	};
-
-	/*
 		Standard sum to N. store[n] = n * (n + 1) / 2
 	*/
 	struct SumToNCalc

@@ -1,4 +1,5 @@
 #include "Meshing/Mesh.h"
+#include "Meshing/BVH.h"
 
 namespace Meshing
 {
@@ -215,6 +216,7 @@ namespace Meshing
         const u32 adjTriIdx  = (adjEdgeIdx - (adjEdgeIdx % 3)) / 3;
 
         // Determine weighted average of both normals
+        constexpr f64 PI         = 3.14159265359;
         const Eigen::Vector3f nA = PseudoNormalFace(triIndex_);
         const Eigen::Vector3f nB = PseudoNormalFace(adjTriIdx);
         const Eigen::Vector3f n  = nA * PI + nB * PI;

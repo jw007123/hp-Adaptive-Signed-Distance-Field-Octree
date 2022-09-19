@@ -8,6 +8,8 @@
 
 #include "Utility/Literals.h"
 
+#include "Meshing/Utility.h"
+
 namespace Meshing
 {
     class NNOctree
