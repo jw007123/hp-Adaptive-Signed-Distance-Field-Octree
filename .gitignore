@@ -1,6 +1,6 @@
 # MSVS
 .vs/
-External/eigen-master/
+External/eigen/
 External/stb/
 
 # Prerequisites

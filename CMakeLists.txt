@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 include_directories("Include")
-include_directories("External/eigen-master")
+include_directories("External/eigen")
 include_directories("External/stb")
 
 # Libs and exe

@@ -4,7 +4,7 @@ else()
 	include (FetchContent)
 
 	FetchContent_Declare(
-	eigen-master
+	eigen
 	GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
 	GIT_TAG f913a4067806312f007cc86d65f74ada26460b20
 	)
