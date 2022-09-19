@@ -2,6 +2,7 @@
 .vs/
 External/eigen/
 External/stb/
+Build/
 
 # Prerequisites
 *.d

@@ -13,6 +13,5 @@ include_directories("External/eigen")
 include_directories("External/stb")
 
 # Libs and exe
-add_subdirectory(External)
 add_subdirectory(Source)
 add_subdirectory(Source/Tests)
