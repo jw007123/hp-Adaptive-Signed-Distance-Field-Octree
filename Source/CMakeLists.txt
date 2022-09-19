@@ -6,7 +6,13 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-add_library(Lib_HP HP/Config.cpp
+if (UNIX)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif (UNIX)
+
+add_library(Lib_HP HP/BuildThreadPool.cpp
+				   HP/Config.cpp
+				   HP/ContinuityThreadPool.cpp
 				   HP/Node.cpp
 				   HP/Octree.cpp
 				   HP/Ray.cpp
