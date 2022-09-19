@@ -1,7 +1,7 @@
 # MSVS
 .vs/
 External/eigen-master/
-External/stb-master/
+External/stb/
 
 # Prerequisites
 *.d
