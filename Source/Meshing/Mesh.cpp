@@ -28,7 +28,10 @@ namespace Meshing
         Clear();
 
         ObjParser objParser;
-        objParser.Load(objPath_);
+        if (!objParser.Load(objPath_))
+        {
+            return false;
+        }
 
         // Only need to fill in halfEdges array. Rest can be taken straight away
         const std::vector<Eigen::Vector3f>& objVerts = objParser.GetVertices();
