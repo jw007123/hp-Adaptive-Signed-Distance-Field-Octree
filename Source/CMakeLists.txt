@@ -11,5 +11,5 @@ add_library(Lib_HP HP/BuildThreadPool.cpp
 				   Meshing/ObjParser.cpp) 
 
 target_include_directories (Lib_HP PUBLIC "../Include")
-target_include_directories (Lib_HP PUBLIC "../External/eigen-master")
-target_include_directories (Lib_HP PUBLIC "../External/stb-master")
+target_include_directories (Lib_HP PUBLIC "../External/eigen")
+target_include_directories (Lib_HP PUBLIC "../External/stb")
