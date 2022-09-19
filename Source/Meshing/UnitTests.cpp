@@ -1,4 +1,4 @@
-#include "UnitTests.h"
+#include "Meshing/UnitTests.h"
 
 namespace Meshing
 {
@@ -16,58 +16,30 @@ namespace Meshing
 
 	bool UnitTests::Run()
 	{
+        std::function<bool()> TestFuncs[Test::Num] =
+        {
+            std::bind(&UnitTests::TestObjParsing,       this),
+            std::bind(&UnitTests::TestMeshCreation,     this),
+            std::bind(&UnitTests::TestNNOctreeQuerying, this),
+            std::bind(&UnitTests::TestBVHBuilding,      this),
+            std::bind(&UnitTests::TestBVHQuerying,      this)
+        };
+
         usize testsPassed = 0;
-		for (usize i = 0; i < Test::Num; ++i)
-		{
-			bool testPassed = false;
-
-			switch (i)
-			{
-                case Test::Obj:
-                {
-                    testPassed = TestObjParsing();
-                    break;
-                }
-
-                case Test::Meshing:
-                {
-                    testPassed = TestMeshCreation();
-                    break;
-                }
-
-                case Test::Octree:
-                {
-                    testPassed = TestNNOctreeQuerying();
-                    break;
-                }
-
-                case Test::BVHB:
-                {
-                    testPassed = TestBVHBuilding();
-                    break;
-                }
-
-                case Test::BVHQ:
-                {
-                    testPassed = TestBVHQuerying();
-                    break;
-                }
-
-				default:
-					assert(0);
-			}
-
-			if (testPassed)
-			{
-				printf("%s: Passed\n\n", TestStrings[i]);
-			}
-			else
-			{
-				printf("%s: Failed\n\n", TestStrings[i]);
-			}
+        for (usize i = 0; i < Test::Num; ++i)
+        {
+            const bool testPassed = TestFuncs[i]();
+            if (testPassed)
+            {
+                printf("%s: Passed\n\n", TestStrings[i]);
+            }
+            else
+            {
+                printf("%s: Failed\n\n", TestStrings[i]);
+            }
 
             testsPassed += testPassed;
-		}
+        }
 
         if (testsPassed == Test::Num)
         {

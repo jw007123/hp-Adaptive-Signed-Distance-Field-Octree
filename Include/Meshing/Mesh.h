@@ -7,10 +7,9 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "Literals.h"
-
-#include "ObjParser.h"
-#include "Utility.h"
+#include "Utility/Literals.h"
+#include "Meshing/ObjParser.h"
+#include "Meshing/Utility.h"
 
 namespace Meshing
 {

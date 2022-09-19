@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Literals.h"
-
 #include "Eigen/Core"
 #include "Eigen/Geometry"
+
+#include "Utility/Literals.h"
 
 namespace Meshing
 {

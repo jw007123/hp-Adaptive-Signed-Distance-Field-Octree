@@ -7,11 +7,10 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include "Literals.h"
-
-#include "Mesh.h"
-#include "Utility.h"
-#include "NNOctree.h"
+#include "Utility/Literals.h"
+#include "Meshing/Mesh.h"
+#include "Meshing/Utility.h"
+#include "Meshing/NNOctree.h"
 
 namespace Meshing
 {

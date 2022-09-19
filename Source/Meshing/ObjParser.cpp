@@ -1,4 +1,4 @@
-#include "ObjParser.h"
+#include "Meshing/ObjParser.h"
 
 namespace Meshing
 {

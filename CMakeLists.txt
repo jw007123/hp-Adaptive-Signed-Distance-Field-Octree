@@ -1,13 +1,10 @@
 # CMake setup
 cmake_minimum_required(VERSION 3.11)
-set(${CMAKE_CURRENT_BINARY_DIR} "Binaries")
 
 # Project setup
 project(hpAdaptiveSDF VERSION 1.0)
-add_subdirectory("Source/HP")
-add_subdirectory("Source/Meshing")
 
-# C++11
+# C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -19,7 +16,7 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-include_directories("Source/Utility")
+include_directories("Include")
 include_directories("External/eigen-master")
 include_directories("External/stb-master")
 
@@ -27,4 +24,5 @@ include_directories("External/stb-master")
 file(COPY Resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Add exe
+add_subdirectory("Source")
 add_executable(Tests "Source/Main.cpp")

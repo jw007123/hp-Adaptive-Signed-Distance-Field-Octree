@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Literals.h"
-
-#include "ObjParser.h"
-#include "BVH.h"
-#include "Mesh.h"
+#include "Utility/Literals.h"
+#include "Meshing/ObjParser.h"
+#include "Meshing/BVH.h"
+#include "Meshing/Mesh.h"
 
 namespace Meshing
 {
@@ -37,13 +36,9 @@ namespace Meshing
 		};
 
         bool TestObjParsing();
-
         bool TestMeshCreation();
-
         bool TestNNOctreeQuerying();
-
         bool TestBVHBuilding();
-
         bool TestBVHQuerying();
 	};
 }

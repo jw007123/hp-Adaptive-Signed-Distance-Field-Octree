@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Octree.h"
+#include "HP/Octree.h"
 
 namespace SDF
 {

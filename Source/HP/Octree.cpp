@@ -1,4 +1,4 @@
-#include "Octree.h"
+#include "HP/Octree.h"
 
 namespace SDF
 {
@@ -113,9 +113,16 @@ namespace SDF
 
 		struct Inserter
 		{
-			u32 parentIdxs[coarseDepth] = { 0 };
-			u32 childNos[coarseDepth]   = { 0 };
-			u32 depth                   = 1;
+            u32 parentIdxs[coarseDepth];
+            u32 childNos[coarseDepth];
+            u32 depth;
+
+            Inserter()
+            {
+                depth = 1;
+                memset(parentIdxs, 0, sizeof(parentIdxs));
+                memset(childNos, 0, sizeof(childNos));
+            }
 		} inserter;
 
 		while (1)
@@ -479,21 +486,66 @@ namespace SDF
 		}
 		coeffStore = (f64*)malloc(sizeof(f64) * nCoeffs);
 
-		// Point all coeffs to new store
-		u32 curCoeffIdx = 0;
-		for (u32 i = 0; i < nodes.size(); ++i)
-		{
-			if (nodes[i].basis.degree != (BASIS_MAX_DEGREE + 1))
-			{
-				// Move mem
-				memcpy(coeffStore + curCoeffIdx, nodes[i].basis.coeffs, sizeof(f64) * LegendreCoeffientCount[nodes[i].basis.degree]);
-				free(nodes[i].basis.coeffs);
+        struct Traveller
+        {
+            u32 parentIdxs[TREE_MAX_DEPTH];
+            i32 childNos[TREE_MAX_DEPTH];
+            u32 depth;
 
-				// Change address
-				nodes[i].basis.coeffsStart = curCoeffIdx;
-				curCoeffIdx += LegendreCoeffientCount[nodes[i].basis.degree];
-			}
-		}
+            Traveller()
+            {
+                depth = 0;
+                for (u8 i = 0; i < TREE_MAX_DEPTH; ++i)
+                {
+                    parentIdxs[i] = 0;
+                    childNos[i]   = -1;
+                }
+            }
+        } traveller;
+
+        u32 curCoeffIdx = 0;
+        while (1)
+        {
+            if (traveller.childNos[traveller.depth] < 7)
+            {
+                // Go to next child
+                traveller.childNos[traveller.depth]++;
+            }
+            else
+            {
+                // Go up
+                if (traveller.depth == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    traveller.depth--;
+                    continue;
+                }
+            }
+
+            const u32 curParentIdx = traveller.depth == 0 ? 0 : traveller.parentIdxs[traveller.depth - 1];
+            const u32 curNodeIdx   = nodes[curParentIdx].childIdx + traveller.childNos[traveller.depth];
+
+            if (nodes[curNodeIdx].childIdx == -1)
+            {
+                // Move mem
+                memcpy(coeffStore + curCoeffIdx, nodes[curNodeIdx].basis.coeffs, sizeof(f64) * LegendreCoeffientCount[nodes[curNodeIdx].basis.degree]);
+                free(nodes[curNodeIdx].basis.coeffs);
+
+                // Change address
+                nodes[curNodeIdx].basis.coeffsStart = curCoeffIdx;
+                curCoeffIdx                        += LegendreCoeffientCount[nodes[curNodeIdx].basis.degree];
+            }
+            else
+            {
+                // Go into children
+                traveller.parentIdxs[traveller.depth] = curNodeIdx;
+                traveller.depth++;
+                traveller.childNos[traveller.depth] = -1;
+            }
+        }
 
 		return nCoeffs;
 	}
@@ -1675,7 +1727,7 @@ namespace SDF
 		Eigen::setNbThreads((i32)config.threadCount);
 
 		// Solve system and copy new coeffs over
-        // NOTE: Eigen's AMDOrdering bugged (and MPL2). Crash deep in Eigen even though matrix is symmetric
+        // NOTE: Eigen's AMDOrdering bugged (and not MPL2). Crash deep in Eigen even though matrix is symmetric
 		Eigen::ConjugateGradient<Eigen::SparseMatrix<f64, Eigen::RowMajor>, Eigen::Lower | Eigen::Upper,
         Eigen::IncompleteCholesky<f64, Eigen::Lower | Eigen::Upper, Eigen::NaturalOrdering<int>>> extSolver(integralMatrix);
 

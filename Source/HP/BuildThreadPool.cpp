@@ -1,5 +1,5 @@
-#include "BuildThreadPool.h"
-#include "Octree.h"
+#include "HP/BuildThreadPool.h"
+#include "HP/Octree.h"
 
 namespace SDF
 {

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Literals.h"
-
-#include "Octree.h"
+#include "Utility/Literals.h"
+#include "HP/Octree.h"
 
 namespace SDF
 {
@@ -17,11 +16,12 @@ namespace SDF
     private:
         enum Benchmark : u8
         {
-            Creation      = 0,
-            Continuity    = 1,
-            QueryDistance = 2,
-            QueryNormal   = 3,
-            SDFOperations = 4,
+            Creation       = 0,
+            Continuity     = 1,
+            QueryDistanceR = 2,
+            QueryDistanceU = 3,
+            QueryNormal    = 4,
+            SDFOperations  = 5,
             Num
         };
 
@@ -29,14 +29,16 @@ namespace SDF
         {
             "Octree Creation",
             "Octree Continuity",
-            "Octree 10M Distance Querying",
-            "Octree 10M Normal Querying",
+            "Octree 8M Random Distance Querying",
+            "Octree 8M Uniform Distance Querying",
+            "Octree 8M Normal Querying",
             "Octree SDF Operations"
         };
 
         f64 BenchmarkOctreeCreation();
         f64 BenchmarkOctreeContinuity();
-        f64 BenchmarkOctreeDistanceQuerying();
+        f64 BenchmarkOctreeRandomDistanceQuerying();
+        f64 BenchmarkOctreeUniformDistanceQuerying();
         f64 BenchmarkOctreeNormalQuerying();
         f64 BenchmarkOctreeSDFOperations();
     };

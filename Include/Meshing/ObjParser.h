@@ -5,7 +5,7 @@
 
 #include "Eigen/Core"
 
-#include "Literals.h"
+#include "Utility/Literals.h"
 
 namespace Meshing
 {

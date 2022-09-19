@@ -1,4 +1,4 @@
-#include "UnitTests.h"
+#include "HP/UnitTests.h"
 
 namespace SDF
 {
@@ -16,53 +16,20 @@ namespace SDF
 
 	bool UnitTests::Run()
 	{
+        std::function<bool()> TestFuncs[Test::Num] = 
+        {
+            std::bind(&UnitTests::TestOctreeCreation,      this),
+            std::bind(&UnitTests::TestOctreeContinuity,    this),
+            std::bind(&UnitTests::TestOctreeSerialisation, this),
+            std::bind(&UnitTests::TestOctreeCopying,       this),
+            std::bind(&UnitTests::TestOctreeSDFOperations, this),
+            std::bind(&UnitTests::TestOctreeCustomDomains, this)
+        };
+
         usize testsPassed = 0;
 		for (usize i = 0; i < Test::Num; ++i)
 		{
-			bool testPassed = false;
-
-			switch (i)
-			{
-				case Test::Creation:
-				{
-					testPassed = TestOctreeCreation();
-					break;
-				}
-
-				case Test::Continuity:
-				{
-					testPassed = TestOctreeContinuity();
-					break;
-				}
-
-				case Test::Serialisation:
-				{
-					testPassed = TestOctreeSerialisation();
-					break;
-				}
-
-                case Test::Copying:
-                {
-                    testPassed = TestOctreeCopying();
-                    break;
-                }
-
-                case Test::SDFOperations:
-                {
-                    testPassed = TestOctreeSDFOperations();
-                    break;
-                }
-
-                case Test::CustomDomains:
-                {
-                    testPassed = TestOctreeCustomDomains();
-                    break;
-                }
-
-				default:
-					assert(0);
-			}
-
+            const bool testPassed = TestFuncs[i]();
 			if (testPassed)
 			{
 				printf("%s: Passed\n\n", TestStrings[i]);

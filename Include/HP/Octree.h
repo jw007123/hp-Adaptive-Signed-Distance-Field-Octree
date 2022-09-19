@@ -9,6 +9,7 @@
 
 #include <malloc.h>
 
+#define EIGEN_MPL2_ONLY 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
@@ -19,16 +20,15 @@
 #include "stb_image_write.h"
 #endif
 
-#include "Literals.h"
-#include "MemoryBlock.h"
-
-#include "Ray.h"
-#include "Utility.h"
-#include "Legendre.h"
-#include "Node.h"
-#include "Config.h"
-#include "BuildThreadPool.h"
-#include "ContinuityThreadPool.h"
+#include "Utility/Literals.h"
+#include "Utility/MemoryBlock.h"
+#include "HP/Ray.h"
+#include "HP/Utility.h"
+#include "HP/Legendre.h"
+#include "HP/Node.h"
+#include "HP/Config.h"
+#include "HP/BuildThreadPool.h"
+#include "HP/ContinuityThreadPool.h"
 
 namespace SDF
 {

@@ -2,8 +2,8 @@
 
 #include "Eigen/Geometry"
 
-#include "Literals.h"
-#include "Utility.h"
+#include "Utility/Literals.h"
+#include "HP/Utility.h"
 
 namespace SDF
 {

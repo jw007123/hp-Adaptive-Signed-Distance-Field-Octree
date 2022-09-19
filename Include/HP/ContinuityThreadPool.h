@@ -10,9 +10,8 @@
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
-#include "Literals.h"
-
-#include "Config.h"
+#include "Utility/Literals.h"
+#include "HP/Config.h"
 
 namespace SDF
 {

@@ -1,4 +1,4 @@
-#include "Benchmarks.h"
+#include "Meshing/Benchmarks.h"
 
 namespace Meshing
 {
@@ -16,47 +16,18 @@ namespace Meshing
 
     void Benchmarks::Run()
     {
-        usize benchmarksRan = 0;
+        std::function<f64()> BenchFuncs[Benchmarks::Num] =
+        {
+            std::bind(&Benchmarks::BenchmarkObjFileParsing,    this),
+            std::bind(&Benchmarks::BenchmarkMeshFromObj,       this),
+            std::bind(&Benchmarks::BenchmarkBVHFromMesh,       this),
+            std::bind(&Benchmarks::BenchmarkBVHQuerying,       this),
+            std::bind(&Benchmarks::BenchmarkNaiveMeshQuerying, this)
+        };
+
         for (usize i = 0; i < Benchmarks::Num; ++i)
         {
-            f64 timeDiff = 0.0;
-
-            switch (i)
-            {
-                case Benchmark::ObjParsing:
-                {
-                    timeDiff = BenchmarkObjFileParsing();
-                    break;
-                }
-
-                case Benchmark::MeshFromObj:
-                {
-                    timeDiff = BenchmarkMeshFromObj();
-                    break;
-                }
-
-                case Benchmark::BVHConstruction:
-                {
-                    timeDiff = BenchmarkBVHFromMesh();
-                    break;
-                }
-
-                case Benchmark::BVHQuerying:
-                {
-                    timeDiff = BenchmarkBVHQuerying();
-                    break;
-                }
-
-                case Benchmark::MeshQuerying:
-                {
-                    timeDiff = BenchmarkNaiveMeshQuerying();
-                    break;
-                }
-
-                default:
-                    assert(0);
-            }
-
+            const f64 timeDiff = BenchFuncs[i]();
             printf("Completed %s in %lfs\n\n", BenchmarkStrings[i], timeDiff);
         }
     }

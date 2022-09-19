@@ -1,9 +1,9 @@
 #pragma once
-#include "Literals.h"
 
-#include "ObjParser.h"
-#include "BVH.h"
-#include "Mesh.h"
+#include "Utility/Literals.h"
+#include "Meshing/ObjParser.h"
+#include "Meshing/BVH.h"
+#include "Meshing/Mesh.h"
 
 namespace Meshing
 {
@@ -36,13 +36,9 @@ namespace Meshing
         };
 
         f64 BenchmarkObjFileParsing();
-
         f64 BenchmarkMeshFromObj();
-
         f64 BenchmarkBVHFromMesh();
-
         f64 BenchmarkBVHQuerying();
-
         f64 BenchmarkNaiveMeshQuerying();
     };
 }

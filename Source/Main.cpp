@@ -2,6 +2,8 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 
+#include <stdio.h>
+
 #include "HP/Ray.cpp"
 #include "HP/Config.cpp"
 #include "HP/Node.cpp"
@@ -19,7 +21,7 @@
 #include "Meshing/UnitTests.cpp"
 #include "Meshing/Benchmarks.cpp"
 
-void RunTests()
+bool RunTests()
 {
     // HP
     {
@@ -29,7 +31,7 @@ void RunTests()
         if (!unitTests.Run())
         {
             std::this_thread::sleep_for(std::chrono::seconds(5));
-            return;
+            return false;
         }
     }
 
@@ -41,11 +43,12 @@ void RunTests()
         if (!unitTests.Run())
         {
             std::this_thread::sleep_for(std::chrono::seconds(5));
-            return;
+            return false;
         }
     }
     
     std::this_thread::sleep_for(std::chrono::seconds(5));
+    return true;
 }
    
 
@@ -75,8 +78,10 @@ void RunBenchmarks()
 
 int main()
 {
-    RunTests();
-    RunBenchmarks();
+    if (RunTests())
+    {
+        RunBenchmarks();
+    }
 
 	return 0;
 }
