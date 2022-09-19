@@ -54,7 +54,7 @@ namespace SDF
 		}
         u32 values[(4 * BASIS_MAX_DEGREE + 1) + 1];
 	};
-	constexpr const u32(&SumToN)[(4 * BASIS_MAX_DEGREE + 1) + 1] = SumToNCalc().values;
+	static constexpr const u32(&SumToN)[(4 * BASIS_MAX_DEGREE + 1) + 1] = SumToNCalc().values;
 
 	/*
 		In equation (4), precomputes the sqrt portions under the assumption that the internal octree
@@ -75,7 +75,7 @@ namespace SDF
 		}
 		f64 values[BASIS_MAX_DEGREE + 1][TREE_MAX_DEPTH + 1];
 	};
-	constexpr const f64(&NormalisedLengths)[BASIS_MAX_DEGREE + 1][TREE_MAX_DEPTH + 1] = NormalisedLengthsCalc().values;
+    static constexpr const f64(&NormalisedLengths)[BASIS_MAX_DEGREE + 1][TREE_MAX_DEPTH + 1] = NormalisedLengthsCalc().values;
 
 	/*
 		Stores the number of coefficient in each basis polynomial. I.e. store[n] tells us that
@@ -103,7 +103,7 @@ namespace SDF
 			return (u32)(f * (BASIS_MAX_DEGREE + 1) * (BASIS_MAX_DEGREE + 2) * (BASIS_MAX_DEGREE + 3));
 		}
 	};
-	constexpr const u32(&LegendreCoeffientCount)[BASIS_MAX_DEGREE + 1] = LegendreCoefficientCountCalc().values;
+    static constexpr const u32(&LegendreCoeffientCount)[BASIS_MAX_DEGREE + 1] = LegendreCoefficientCountCalc().values;
 
 	/*
 		Stores the constants used in each term of the reccurence relation definition for Legendre polynomials.
@@ -124,7 +124,7 @@ namespace SDF
 		}
 		f64 values[BASIS_MAX_DEGREE + 1][2];
 	};
-	constexpr const f64(&LegendreCoefficent)[BASIS_MAX_DEGREE + 1][2] = LegendreCoefficientCalc().values;
+    static constexpr const f64(&LegendreCoefficent)[BASIS_MAX_DEGREE + 1][2] = LegendreCoefficientCalc().values;
 
 	/*
 		Stores all possible combinations of BasisIndex for dimension M and max basis degree N. Saves having
@@ -157,7 +157,7 @@ namespace SDF
 		}
         u32 values[LegendreCoefficientCountCalc::Size()][3];
 	};
-	constexpr const u32(&BasisIndexValues)[LegendreCoefficientCountCalc::Size()][3] = BasisIndexValuesCalc().values;
+    static constexpr const u32(&BasisIndexValues)[LegendreCoefficientCountCalc::Size()][3] = BasisIndexValuesCalc().values;
 
     /*
         Stores adjacent face pairs used during the continuity correction. The lookup table is additive (i.e. the lookup table for 
@@ -193,5 +193,5 @@ namespace SDF
 		}
 		usize values[3][4][2];
 	};
-	constexpr const usize(&SharedFaceLookup)[3][4][2] = SharedFaceLookupCalc().values;
+   static constexpr const usize(&SharedFaceLookup)[3][4][2] = SharedFaceLookupCalc().values;
 }
