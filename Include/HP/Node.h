@@ -3,7 +3,7 @@
 #include "Eigen/Geometry"
 
 #include "Utility/Literals.h"
-#include "HP/Utility.h"
+#include "HP/Consts.h"
 
 namespace SDF
 {

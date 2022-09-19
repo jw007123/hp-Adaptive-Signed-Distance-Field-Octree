@@ -1,15 +1,13 @@
 #pragma once
 
 #include "Utility/Literals.h"
+#include "HP/Consts.h"
 
 /*
 	Functions and Lookups
 */
 namespace SDF
 {
-	constexpr usize BASIS_MAX_DEGREE = 12;
-	constexpr usize TREE_MAX_DEPTH   = 10;
-
 	/*
 		Constexpr-satisfying versions of Pow and Sqrt.
 	*/

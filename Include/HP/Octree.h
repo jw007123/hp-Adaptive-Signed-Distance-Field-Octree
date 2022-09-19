@@ -18,6 +18,7 @@
 
 #include "Utility/Literals.h"
 #include "Utility/MemoryBlock.h"
+#include "HP/Consts.h"
 #include "HP/Ray.h"
 #include "HP/Utility.h"
 #include "HP/Legendre.h"

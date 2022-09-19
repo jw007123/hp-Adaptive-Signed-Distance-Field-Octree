@@ -3,6 +3,7 @@
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 #include <malloc.h>
 
