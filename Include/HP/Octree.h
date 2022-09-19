@@ -16,8 +16,6 @@
 #include "Eigen/Geometry"
 #include "Eigen/Sparse"
 
-#define HAS_STB 1
-
 #include "Utility/Literals.h"
 #include "Utility/MemoryBlock.h"
 #include "HP/Consts.h"
@@ -77,7 +75,7 @@ namespace SDF
         /// Returns the aabb of the root node
         Eigen::AlignedBox3f GetRootAABB() const;
 
-#if HAS_STB
+#ifdef HAS_STB
 		/// Writes a 2048*2048 image of the approximated SDF about z = c_ to fName_.bmp
 		void OutputFunctionSlice(const char* fName_, const f64 c_, const Eigen::AlignedBox3f& viewArea_);
 #endif

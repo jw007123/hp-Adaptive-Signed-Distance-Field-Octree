@@ -1,6 +1,6 @@
 #include "HP/Octree.h"
 
-#if HAS_STB
+#ifdef HAS_STB
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #endif
@@ -1129,7 +1129,7 @@ namespace SDF
 	}
 
 
-#if HAS_STB
+#ifdef HAS_STB
 	void Octree::OutputFunctionSlice(const char* fName_, const f64 c_, const Eigen::AlignedBox3f& viewArea_)
 	{
 		// Obtain mem and set size
@@ -1742,8 +1742,10 @@ namespace SDF
 		oldCoeffs *= config.continuity.strength;
 
 		// If OpenMP enabled, leverage additional threads
+#ifdef HAS_OMP
 		Eigen::initParallel();
 		Eigen::setNbThreads((i32)config.threadCount);
+#endif
 
 		// Solve system and copy new coeffs over
         // NOTE: Eigen's AMDOrdering bugged (and not MPL2). Crash deep in Eigen even though matrix is symmetric
@@ -1755,6 +1757,8 @@ namespace SDF
 		memcpy(coeffStore, newCoeffs.data(), sizeof(f64) * nCoeffs_);
 
 		// No side effects!
+#ifdef HAS_OMP
 		Eigen::setNbThreads(1);
-	}
+#endif
+    }
 }
