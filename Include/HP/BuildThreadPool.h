@@ -16,7 +16,7 @@
 
 namespace SDF
 {
-	class Octree;
+    class Octree;
 
     class BuildThreadPool
     {

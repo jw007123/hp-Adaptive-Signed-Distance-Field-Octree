@@ -3,7 +3,7 @@
 namespace Meshing
 {
     ClosestSimplexInfo ClosestSimplexToPt(const Eigen::Vector3f& pt_,
-                                          const Eigen::Vector3f& a_, const Eigen::Vector3f& b_, const Eigen::Vector3f& c_)
+                                            const Eigen::Vector3f& a_, const Eigen::Vector3f& b_, const Eigen::Vector3f& c_)
     {
         // c.f. page 139
         const Eigen::Vector3f ab = b_ - a_;

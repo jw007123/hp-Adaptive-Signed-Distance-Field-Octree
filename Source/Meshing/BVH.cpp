@@ -328,8 +328,8 @@ namespace Meshing
                     const u32 c = mesh->triIndices[t + 2];
 
                     const ClosestSimplexInfo simplexInfo = ClosestSimplexToPt(pt_, mesh->vertices[a],
-                                                                                   mesh->vertices[b],
-                                                                                   mesh->vertices[c]);
+                                                                                    mesh->vertices[b],
+                                                                                    mesh->vertices[c]);
                     const f32 dist = (simplexInfo.closestPt - pt_).squaredNorm();
 
                     // Update best distance w/ new candidate

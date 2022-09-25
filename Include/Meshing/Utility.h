@@ -33,7 +33,7 @@ namespace Meshing
         Eigen::Vector3f closestPt;
     };
     ClosestSimplexInfo ClosestSimplexToPt(const Eigen::Vector3f& pt_, 
-                                          const Eigen::Vector3f& a_, const Eigen::Vector3f& b_, const Eigen::Vector3f& c_);
+                                            const Eigen::Vector3f& a_, const Eigen::Vector3f& b_, const Eigen::Vector3f& c_);
 
     /// Calculates and returns the bounding AABB of the triangle
     Eigen::AlignedBox3f CalculateAABB(const Eigen::Vector3f& a_, const Eigen::Vector3f& b_, const Eigen::Vector3f& c_);

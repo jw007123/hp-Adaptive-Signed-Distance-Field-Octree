@@ -2,20 +2,20 @@
 
 namespace SDF
 {
-	UnitTests::UnitTests()
-	{
+    UnitTests::UnitTests()
+    {
 
-	}
-
-
-	UnitTests::~UnitTests()
-	{
-
-	}
+    }
 
 
-	bool UnitTests::Run()
-	{
+    UnitTests::~UnitTests()
+    {
+
+    }
+
+
+    bool UnitTests::Run()
+    {
         std::function<bool()> TestFuncs[Test::Num] = 
         {
             std::bind(&UnitTests::TestOctreeCreation,      this),
@@ -27,20 +27,20 @@ namespace SDF
         };
 
         usize testsPassed = 0;
-		for (usize i = 0; i < Test::Num; ++i)
-		{
+	    for (usize i = 0; i < Test::Num; ++i)
+	    {
             const bool testPassed = TestFuncs[i]();
-			if (testPassed)
-			{
-				printf("%s: Passed\n\n", TestStrings[i]);
-			}
-			else
-			{
-				printf("%s: Failed\n\n", TestStrings[i]);
-			}
+		    if (testPassed)
+		    {
+			    printf("%s: Passed\n\n", TestStrings[i]);
+		    }
+		    else
+		    {
+			    printf("%s: Failed\n\n", TestStrings[i]);
+		    }
 
             testsPassed += testPassed;
-		}
+	    }
 
         if (testsPassed == Test::Num)
         {
@@ -52,118 +52,118 @@ namespace SDF
         }
 
         return (testsPassed == Test::Num);
-	}
+    }
 
 
-	bool UnitTests::TestOctreeCreation()
-	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
-		{
-			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
-		};
+    bool UnitTests::TestOctreeCreation()
+    {
+	    auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
+	    {
+		    return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+	    };
 
-		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -8);
-		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
-		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce         = false;
+	    Config hpConfig;
+	    hpConfig.targetErrorThreshold       = pow(10, -8);
+	    hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
+	    hpConfig.nearnessWeighting.strength = 3.0;
+	    hpConfig.continuity.enforce         = false;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
-		Octree hpOctree;
-		hpOctree.Create(hpConfig, SphereFunc);
+	    Octree hpOctree;
+	    hpOctree.Create(hpConfig, SphereFunc);
 
-		const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
-		for (usize i = 0; i < 1000000; ++i)
-		{
-			const Eigen::Vector3d sample(box.sample());
-			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample, 0);
+	    const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+	    for (usize i = 0; i < 1000000; ++i)
+	    {
+		    const Eigen::Vector3d sample(box.sample());
+		    const f64 octS  = hpOctree.Query(sample);
+		    const f64 trueS = SphereFunc(sample, 0);
 
-			if (abs(octS - trueS) > 0.01)
-			{
-				return false;
-			}
-		}
+		    if (abs(octS - trueS) > 0.01)
+		    {
+			    return false;
+		    }
+	    }
 
-		return true;
-	}
+	    return true;
+    }
 
 
-	bool UnitTests::TestOctreeContinuity()
-	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
-		{
-			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
-		};
+    bool UnitTests::TestOctreeContinuity()
+    {
+	    auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
+	    {
+		    return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+	    };
 
-		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -8);
-		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
-		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce         = true;
-		hpConfig.continuity.strength        = 8.0;
+	    Config hpConfig;
+	    hpConfig.targetErrorThreshold       = pow(10, -8);
+	    hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
+	    hpConfig.nearnessWeighting.strength = 3.0;
+	    hpConfig.continuity.enforce         = true;
+	    hpConfig.continuity.strength        = 8.0;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
-		Octree hpOctree;
-		hpOctree.Create(hpConfig, SphereFunc);
+	    Octree hpOctree;
+	    hpOctree.Create(hpConfig, SphereFunc);
 
-		const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
-		for (usize i = 0; i < 1000000; ++i)
-		{
-			const Eigen::Vector3d sample(box.sample());
-			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample, 0);
+	    const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+	    for (usize i = 0; i < 1000000; ++i)
+	    {
+		    const Eigen::Vector3d sample(box.sample());
+		    const f64 octS  = hpOctree.Query(sample);
+		    const f64 trueS = SphereFunc(sample, 0);
 
-			if (abs(octS - trueS) > 0.01)
-			{
-				return false;
-			}
-		}
+		    if (abs(octS - trueS) > 0.01)
+		    {
+			    return false;
+		    }
+	    }
 
-		return true;
-	}
+	    return true;
+    }
 
 
-	bool UnitTests::TestOctreeSerialisation()
-	{
-		auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
-		{
-			return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
-		};
+    bool UnitTests::TestOctreeSerialisation()
+    {
+	    auto SphereFunc = [](const Eigen::Vector3d& pt_, const u32 threadIdx_) -> f64
+	    {
+		    return (pt_ - Eigen::Vector3d(0.25, 0, 0)).norm() - 0.5;
+	    };
 
-		Config hpConfig;
-		hpConfig.targetErrorThreshold       = pow(10, -8);
-		hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
-		hpConfig.nearnessWeighting.strength = 3.0;
-		hpConfig.continuity.enforce         = true;
-		hpConfig.continuity.strength        = 8.0;
+	    Config hpConfig;
+	    hpConfig.targetErrorThreshold       = pow(10, -8);
+	    hpConfig.nearnessWeighting.type     = Config::NearnessWeighting::Type::Polynomial;
+	    hpConfig.nearnessWeighting.strength = 3.0;
+	    hpConfig.continuity.enforce         = true;
+	    hpConfig.continuity.strength        = 8.0;
         hpConfig.threadCount                = std::thread::hardware_concurrency() != 0 ? std::thread::hardware_concurrency() : 1;
 
-		MemoryBlock hpBlock;
-		{
-			Octree hpOctree;
-			hpOctree.Create(hpConfig, SphereFunc);
-			hpBlock = hpOctree.ToMemoryBlock();
-		}
-		Octree hpOctree;
-		hpOctree.FromMemoryBlock(hpBlock);
-		free(hpBlock.ptr);
+	    MemoryBlock hpBlock;
+	    {
+		    Octree hpOctree;
+		    hpOctree.Create(hpConfig, SphereFunc);
+		    hpBlock = hpOctree.ToMemoryBlock();
+	    }
+	    Octree hpOctree;
+	    hpOctree.FromMemoryBlock(hpBlock);
+	    free(hpBlock.ptr);
 
-		const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
-		for (usize i = 0; i < 1000000; ++i)
-		{
-			const Eigen::Vector3d sample(box.sample());
-			const f64 octS  = hpOctree.Query(sample);
-			const f64 trueS = SphereFunc(sample, 0);
+	    const Eigen::AlignedBox3d box(Eigen::Vector3d(-0.5, -0.5, -0.5), Eigen::Vector3d(0.5, 0.5, 0.5));
+	    for (usize i = 0; i < 1000000; ++i)
+	    {
+		    const Eigen::Vector3d sample(box.sample());
+		    const f64 octS  = hpOctree.Query(sample);
+		    const f64 trueS = SphereFunc(sample, 0);
 
-			if (abs(octS - trueS) > 0.01)
-			{
-				return false;
-			}
-		}
+		    if (abs(octS - trueS) > 0.01)
+		    {
+			    return false;
+		    }
+	    }
 
-		return true;
-	}
+	    return true;
+    }
 
 
     bool UnitTests::TestOctreeCopying()

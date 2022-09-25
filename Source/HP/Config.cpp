@@ -20,21 +20,21 @@ namespace SDF
     }
 
 
-	void Config::IsValid() const
-	{
-		assert(targetErrorThreshold > 0.0);
-		assert(threadCount > 0);
+    void Config::IsValid() const
+    {
+	    assert(targetErrorThreshold > 0.0);
+	    assert(threadCount > 0);
         assert(root.volume() > 0.0);
         assert(root.sizes()(0) == root.sizes()(1) && root.sizes()(1) == root.sizes()(2));
         
-		if (nearnessWeighting.type != Config::NearnessWeighting::None)
-		{
-			assert(nearnessWeighting.strength > 0.0);
-		}
+	    if (nearnessWeighting.type != Config::NearnessWeighting::None)
+	    {
+		    assert(nearnessWeighting.strength > 0.0);
+	    }
 
-		if (continuity.enforce)
-		{
-			assert(continuity.strength > 0.0);
-		}
-	}
+	    if (continuity.enforce)
+	    {
+		    assert(continuity.strength > 0.0);
+	    }
+    }
 }

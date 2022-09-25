@@ -153,9 +153,9 @@ namespace Meshing
         {
             // Determine dist to closest pt on triangle
             const ClosestSimplexInfo cInfo = ClosestSimplexToPt(pt_, 
-                                             vertices[triIndices[i * 3 + 0]], 
-                                             vertices[triIndices[i * 3 + 1]], 
-                                             vertices[triIndices[i * 3 + 2]]);
+                                                vertices[triIndices[i * 3 + 0]], 
+                                                vertices[triIndices[i * 3 + 1]], 
+                                                vertices[triIndices[i * 3 + 2]]);
             const f32 thisDist             = (pt_ - cInfo.closestPt).squaredNorm();
 
             if (thisDist < bestDist)

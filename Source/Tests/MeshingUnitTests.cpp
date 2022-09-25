@@ -2,20 +2,20 @@
 
 namespace Meshing
 {
-	UnitTests::UnitTests()
-	{
+    UnitTests::UnitTests()
+    {
 
-	}
-
-
-	UnitTests::~UnitTests()
-	{
-
-	}
+    }
 
 
-	bool UnitTests::Run()
-	{
+    UnitTests::~UnitTests()
+    {
+
+    }
+
+
+    bool UnitTests::Run()
+    {
         std::function<bool()> TestFuncs[Test::Num] =
         {
             std::bind(&UnitTests::TestObjParsing,       this),
@@ -51,7 +51,7 @@ namespace Meshing
         }
 
         return (testsPassed == Test::Num);
-	}
+    }
 
 
     bool UnitTests::TestObjParsing()
