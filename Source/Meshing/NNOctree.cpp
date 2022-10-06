@@ -10,13 +10,6 @@ namespace Meshing
     }
 
 
-    NNOctree::Node::~Node()
-    {
-        data  = nullptr;
-        nIdxs = 0;
-    }
-
-
     NNOctree::~NNOctree()
     {
         for (u32 i = 0; i < nodes.size(); ++i)
@@ -107,10 +100,13 @@ namespace Meshing
 
         // Realloc
         leafNode.nIdxs -= 1;
-        if (leafNode.nIdxs)
-        {
-            leafNode.data = (TYPE*)realloc(leafNode.data, TYPE_SZ * leafNode.nIdxs);
-        }
+		if (leafNode.nIdxs)
+		{
+			if (!(leafNode.nIdxs % ALLOC_SIZE))
+			{
+				leafNode.data = (TYPE*)realloc(leafNode.data, sizeof(TYPE) * leafNode.nIdxs);
+			}
+		}
         else
         {
             free(leafNode.data);
@@ -301,11 +297,14 @@ namespace Meshing
 
         if (leafNode.data != nullptr)
         {
-            leafNode.data = (TYPE*)realloc(leafNode.data, TYPE_SZ * (leafNode.nIdxs + 1));
+			if (!(leafNode.nIdxs % ALLOC_SIZE))
+			{
+				leafNode.data = (TYPE*)realloc(leafNode.data, sizeof(TYPE) * (leafNode.nIdxs + ALLOC_SIZE));
+			}
         }
         else
         {
-            leafNode.data = (TYPE*)malloc(TYPE_SZ);
+            leafNode.data = (TYPE*)malloc(sizeof(TYPE) * ALLOC_SIZE);
         }
 
         leafNode.data[leafNode.nIdxs] = data_;

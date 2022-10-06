@@ -35,8 +35,8 @@ namespace Meshing
     private:
         typedef std::pair<Eigen::Vector3f, u32> TYPE;
 
-        static constexpr u8  LEAF_NODE_MAX_POINTS = 25;
-        static constexpr u32 TYPE_SZ              = sizeof(TYPE);
+		static constexpr u8 ALLOC_SIZE			 = 5;
+        static constexpr u8 LEAF_NODE_MAX_POINTS = 25;
 
         struct Node
         {
@@ -52,7 +52,6 @@ namespace Meshing
             u8 nIdxs;
 
             Node();
-            ~Node();
         };
         std::vector<Node> nodes;
 
