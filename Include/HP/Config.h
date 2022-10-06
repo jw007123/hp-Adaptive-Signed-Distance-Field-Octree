@@ -12,7 +12,6 @@ namespace SDF
     {
         /// Reasonable defaults
         Config();
-        ~Config();
 
         struct NearnessWeighting
         {

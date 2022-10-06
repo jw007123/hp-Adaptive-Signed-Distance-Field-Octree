@@ -3,18 +3,6 @@
 
 namespace SDF
 {
-    ContinuityThreadPool::ContinuityThreadPool()
-    {
-
-    }
-
-
-    ContinuityThreadPool::~ContinuityThreadPool()
-    {
-
-    }
-
-
     void ContinuityThreadPool::StartThreads(InitialData* const initialData_, Octree* const octree_)
     {
 	    assert(initialData_->config.threadCount > 0);

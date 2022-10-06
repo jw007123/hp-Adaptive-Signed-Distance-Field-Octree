@@ -8,12 +8,6 @@ namespace Meshing
     }
 
 
-    ObjParser::~ObjParser()
-    {
-
-    }
-
-
     bool ObjParser::Load(const char* objPath_)
     {
         Clear();

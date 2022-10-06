@@ -9,22 +9,11 @@ namespace Meshing
     }
 
 
-    BVH::Node::~Node()
-    {
-
-    }
-
-
     BVH::BVH()
     {
         mesh = nullptr;
     }
 
-
-    BVH::~BVH()
-    {
-
-    }
 
     void BVH::Clear()
     {

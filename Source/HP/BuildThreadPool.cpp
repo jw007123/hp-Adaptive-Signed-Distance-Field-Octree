@@ -3,18 +3,6 @@
 
 namespace SDF
 {
-    BuildThreadPool::BuildThreadPool()
-    {
-
-    }
-
-
-    BuildThreadPool::~BuildThreadPool()
-    {
-
-    }
-
-
     void BuildThreadPool::StartThreads(const InitialData* const initialData_, Octree* const octree_)
     {
 	    assert(initialData_->config.threadCount > 0);

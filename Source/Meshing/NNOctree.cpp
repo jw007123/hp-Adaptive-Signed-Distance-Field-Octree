@@ -17,12 +17,6 @@ namespace Meshing
     }
 
 
-    NNOctree::NNOctree()
-    {
-
-    }
-
-
     NNOctree::~NNOctree()
     {
         for (u32 i = 0; i < nodes.size(); ++i)

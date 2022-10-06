@@ -13,10 +13,4 @@ namespace SDF
 
 	    depth = TREE_MAX_DEPTH + 1;
     }
-
-
-    Node::~Node()
-    {
-
-    }
 }

@@ -13,7 +13,6 @@ namespace Meshing
     {
     public:
         ObjParser();
-        ~ObjParser();
 
         /// Loads a set of vertices, normals and triangles into the object
         bool Load(const char* objPath_);

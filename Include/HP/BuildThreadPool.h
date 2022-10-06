@@ -58,9 +58,6 @@ namespace SDF
             std::mutex*         outputQueueMutex;
         };
 
-        BuildThreadPool();
-        ~BuildThreadPool();
-
         void StartThreads(const InitialData* const initialData_, Octree* const octree_);
         void StopThreads();
 

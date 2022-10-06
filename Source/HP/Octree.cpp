@@ -2,7 +2,6 @@
 
 #ifdef HAS_STB
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 #endif
 
 namespace SDF
@@ -1585,7 +1584,7 @@ namespace SDF
             for (u8 i = 0; i < 4; ++i)
             {
                 FaceProc(aHasChildren ? nodeA.childIdx + SharedFaceLookup[dim_][i][1] : nodeIdxA_,
-                            bHasChildren ? nodeB.childIdx + SharedFaceLookup[dim_][i][0] : nodeIdxB_, dim_, jobQueue_);
+                         bHasChildren ? nodeB.childIdx + SharedFaceLookup[dim_][i][0] : nodeIdxB_, dim_, jobQueue_);
             }
 	    }
 	    else

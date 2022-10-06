@@ -39,9 +39,6 @@ namespace SDF
             std::vector<Eigen::Triplet<f64>>* matTriplets;
         };
 
-        ContinuityThreadPool();
-        ~ContinuityThreadPool();
-
         void StartThreads(InitialData* const initialData_, Octree* const octree_);
         void StopThreads();
 

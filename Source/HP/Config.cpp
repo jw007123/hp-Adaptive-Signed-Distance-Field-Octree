@@ -14,12 +14,6 @@ namespace SDF
     }
 
 
-    Config::~Config()
-    {
-
-    }
-
-
     void Config::IsValid() const
     {
 	    assert(targetErrorThreshold > 0.0);

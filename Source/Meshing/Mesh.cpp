@@ -3,18 +3,6 @@
 
 namespace Meshing
 {
-    Mesh::Mesh()
-    {
-
-    }
-
-
-    Mesh::~Mesh()
-    {
-
-    }
-
-
     void Mesh::Clear()
     {
         halfEdges.clear();

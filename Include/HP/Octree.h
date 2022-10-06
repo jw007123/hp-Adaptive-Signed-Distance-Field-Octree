@@ -11,6 +11,10 @@
 
 #include <malloc.h>
 
+#ifdef HAS_STB
+#include "stb_image_write.h"
+#endif
+
 #define EIGEN_MPL2_ONLY 
 #include "Eigen/Core"
 #include "Eigen/Geometry"

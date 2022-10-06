@@ -15,7 +15,6 @@ namespace Meshing
     class NNOctree
     {
     public:
-        NNOctree();
         ~NNOctree();
 
         /// Clears the internal state

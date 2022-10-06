@@ -10,7 +10,6 @@ namespace SDF
     struct Node
     {
 	    Node();
-	    ~Node();
 
 	    // Nodes are allocated in blocks of 8, so the ith child's ID is childIdx + i
 	    u32 childIdx;

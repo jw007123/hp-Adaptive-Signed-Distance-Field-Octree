@@ -18,7 +18,6 @@ namespace Meshing
     {
     public:
         BVH();
-        ~BVH();
 
         /// Clears the internal state
         void Clear();
@@ -52,7 +51,6 @@ namespace Meshing
             u8 isLeaf;
 
             Node();
-            ~Node();
         };
         std::vector<Node> nodes;
 

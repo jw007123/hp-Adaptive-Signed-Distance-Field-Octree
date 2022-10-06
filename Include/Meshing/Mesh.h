@@ -42,9 +42,6 @@ namespace Meshing
     class Mesh
     {
     public:
-        Mesh();
-        ~Mesh();
-
         /// Clears the internal state
         void Clear();
 
