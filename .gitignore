@@ -3,7 +3,6 @@
 External/eigen/
 External/stb/
 Build/
-Resources/
 
 # Prerequisites
 *.d
