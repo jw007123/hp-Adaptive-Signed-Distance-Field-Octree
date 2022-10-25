@@ -13,7 +13,9 @@ if (UNIX)
 endif (UNIX)
 
 # .obj resources
-file(COPY "../../Resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+if (EXISTS "../../Resources")
+    file(COPY "../../Resources" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 # stb available
 add_compile_definitions(HAS_STB)
