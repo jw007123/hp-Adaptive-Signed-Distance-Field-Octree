@@ -10,7 +10,11 @@ then
 	git clone https://github.com/nothings/stb.git External/stb
 fi
 
-mkdir Build
+if [ ! -d "Build" ]
+then
+    mkdir Build
+fi
+
 cd Build
 cmake ..
 make
