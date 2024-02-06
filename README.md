@@ -83,3 +83,4 @@ To add context to the perfomance figures, all examples were generated on a PC eq
 ### Future Improvements
 
 * Bite the bullet and significantly improve the CMake code and test compilation on other platforms (Linux etc).
+* Bug somewhere in the Meshing code with the PseudoNormal calculation. That is, Mesh.FXYZ(pt) can sometimes return the wrong sign and will cause the SDF approximation to fail or look a bit silly. This is quite rare (generated this video from a 2Mil trimesh https://www.youtube.com/watch?v=8LauGgRzlcI) but worth considering. 
