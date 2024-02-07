@@ -51,12 +51,13 @@ namespace Meshing
         u8 pos = 0;
 
         // Determine identifier
-        while (lineBuff_[pos] != ' ')
+		while (lineBuff_[pos] != ' ' && lineBuff_[pos] != '\0' && pos < sizeof(type))
         {
             type[pos] = lineBuff_[pos];
             pos++;
         }
-        
+		type[sizeof(type) - 1] = '\0';
+
         // Only interested in 'v' and 'f'
         if (!strcmp(type, "v"))
         {
@@ -90,8 +91,8 @@ namespace Meshing
 
                     Eigen::Vector<u32, 3> newIndices;
                     std::sscanf(lineBuff_ + 2, "%lu %lu %lu", &newIndices.coeffRef(0),
-                                                                &newIndices.coeffRef(1),
-                                                                &newIndices.coeffRef(2));
+                                                              &newIndices.coeffRef(1),
+                                                              &newIndices.coeffRef(2));
 
                     triIndices.push_back(newIndices.coeff(0) - 1);
                     triIndices.push_back(newIndices.coeff(1) - 1);

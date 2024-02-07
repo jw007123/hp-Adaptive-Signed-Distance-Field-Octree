@@ -2,8 +2,10 @@
 
 #include <fstream>
 #include <vector>
+#include <cassert>
 
 #include "Eigen/Core"
+#include "Eigen/Geometry"
 
 #include "Utility/Literals.h"
 

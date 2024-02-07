@@ -8,6 +8,7 @@
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <cassert>
 
 #include <malloc.h>
 

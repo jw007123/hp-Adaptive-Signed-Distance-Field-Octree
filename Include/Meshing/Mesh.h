@@ -3,6 +3,7 @@
 #include <vector>
 #include <tuple>
 #include <map>
+#include <cassert>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"

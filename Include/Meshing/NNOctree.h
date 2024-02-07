@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <queue>
+#include <cassert>
 
 #include "Eigen/Core"
 #include "Eigen/Geometry"
