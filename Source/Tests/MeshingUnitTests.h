@@ -10,9 +10,6 @@ namespace Meshing
     class UnitTests
     {
     public:
-	    UnitTests();
-	    ~UnitTests();
-
 	    bool Run();
 
     private:

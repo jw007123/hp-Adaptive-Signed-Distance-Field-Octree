@@ -2,18 +2,6 @@
 
 namespace Meshing
 {
-    UnitTests::UnitTests()
-    {
-
-    }
-
-
-    UnitTests::~UnitTests()
-    {
-
-    }
-
-
     bool UnitTests::Run()
     {
         std::function<bool()> TestFuncs[Test::Num] =

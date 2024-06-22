@@ -232,9 +232,8 @@ namespace Meshing
 
             n += PseudoNormalFace(curTriIdx) * ang;
 
-            curHEIdx = halfEdges[curHEIdx];
-            curHEIdx = ((curHEIdx % 3) == 2) ? (curHEIdx - 2) : (curHEIdx + 1);
-
+            curHEIdx  = halfEdges[curHEIdx];
+            curHEIdx  = ((curHEIdx % 3) == 2) ? (curHEIdx - 2) : (curHEIdx + 1);
             curTriIdx = (curHEIdx - (curHEIdx % 3)) / 3;
 
         } while (curTriIdx != triIndex_);

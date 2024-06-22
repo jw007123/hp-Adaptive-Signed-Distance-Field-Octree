@@ -10,9 +10,6 @@ namespace Meshing
     class Benchmarks
     {
     public:
-        Benchmarks();
-        ~Benchmarks();
-
         void Run();
 
     private:

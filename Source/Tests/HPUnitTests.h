@@ -7,9 +7,6 @@ namespace SDF
     class UnitTests
     {
     public:
-	    UnitTests();
-	    ~UnitTests();
-
 	    bool Run();
 
     private:

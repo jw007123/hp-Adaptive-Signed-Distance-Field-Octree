@@ -1397,9 +1397,9 @@ namespace SDF
 			    if (std::abs<f32>((f32)integral) > EPSILON_F32)
 			    {
 				    matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
-                                                                (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+                                                               (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
 				    matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + j), 
-                                                                (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
+                                                               (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
 			    }
 		    }
 	    }
@@ -1449,7 +1449,7 @@ namespace SDF
 			    if (std::abs<f32>((f32)integral) > EPSILON_F32)
 			    {
 				    matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + i), 
-                                                                (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+                                                               (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
 			    }
 		    }
 	    }
@@ -1490,7 +1490,7 @@ namespace SDF
 			    integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeA.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
-                                                            (StorageIndex)(nodeA.basis.coeffsStart + j), integral));
+                                                           (StorageIndex)(nodeA.basis.coeffsStart + j), integral));
 		    }
 	    }
 
@@ -1514,9 +1514,9 @@ namespace SDF
 			    integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeA.basis.coeffsStart + i),
-                                                            (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+                                                           (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + j),
-                                                            (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
+                                                           (StorageIndex)(nodeA.basis.coeffsStart + i), integral));
 		    }
 	    }
 
@@ -1540,7 +1540,7 @@ namespace SDF
 			    integral    *= NormalisedLengths[BasisIndexValues[j][dim_]][nodeB.depth];
 
                 matTriplets_.push_back(Eigen::Triplet<f64>((StorageIndex)(nodeB.basis.coeffsStart + i),
-                                                            (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
+                                                           (StorageIndex)(nodeB.basis.coeffsStart + j), integral));
 		    }
 	    }
     }
@@ -1724,8 +1724,8 @@ namespace SDF
 	    for (u32 i = 0; i < nCoeffs_; ++i)
 	    {
 		    integralMatrixTriplets.push_back(Eigen::Triplet<f64>((Eigen::SparseMatrix<f64>::StorageIndex)i, 
-                                                                    (Eigen::SparseMatrix<f64>::StorageIndex)i, 
-                                                                    config.continuity.strength));
+                                                                 (Eigen::SparseMatrix<f64>::StorageIndex)i, 
+                                                                 config.continuity.strength));
 	    }
 
 	    // Create sparse mat from entries

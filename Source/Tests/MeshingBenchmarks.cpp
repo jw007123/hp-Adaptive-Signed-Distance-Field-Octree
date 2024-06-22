@@ -2,18 +2,6 @@
 
 namespace Meshing
 {
-    Benchmarks::Benchmarks()
-    {
-
-    }
-
-
-    Benchmarks::~Benchmarks()
-    {
-
-    }
-
-
     void Benchmarks::Run()
     {
         std::function<f64()> BenchFuncs[Benchmarks::Num] =
